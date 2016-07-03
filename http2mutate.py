@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 import sys
-import fuzzer.http1
-import socket
+import fuzzer.http2
 import argparse
 import config
 
@@ -57,7 +56,7 @@ elif len(parts) == 2:
     start_test = int(parts[0])
     end_test = int(parts[1])
 else:
-    raise 'Could not parse --test value, too many colons'
+    raise Exception('Could not parse --test value, too many colons')
 
 parts = args.ratio.split(':')
 if len(parts) == 1:
@@ -67,4 +66,8 @@ elif len(parts) == 2:
     min_ratio = float(parts[0])
     max_ratio = float(parts[1])
 else:
-    raise 'Could not parse --ratio value, too many colons'
+    raise Exception('Could not parse --ratio value, too many colons')
+
+fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+                host, port, seed, min_ratio, max_ratio, start_test, end_test)
+fuzzer.run()
