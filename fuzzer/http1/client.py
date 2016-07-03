@@ -7,9 +7,11 @@ import random
 # TODO: create a test which checks that it generates the same requests
 #       for the same original request, seed and ratios
 # TODO: extract string fuzzer from this class, add end_test parameter to it
-class MutationalHTTPRequestFuzzer:
+# TODO: add 'HTTP1 request line only fuzzer'
+class DumbHTTP1RequestFuzzer:
 
-    def __init__(self, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05, start_test = 0, ignored_symbols = ('\r', '\n')):
+    def __init__(self, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0, ignored_symbols = ('\r', '\n')):
         # TODO: check if parameters are valid
         self.__start_test = start_test
         self.__request = request
@@ -58,12 +60,10 @@ class MutationalHTTPRequestFuzzer:
         return symbol in self.__ignored_symbols
 
     def debug(self, message):
-        helper.debug(MutationalHTTPRequestFuzzer.__name__, message)
+        helper.debug(DumbHTTP1RequestFuzzer.__name__, message)
 
 
 class Http1RequestLineFuzzer:
-
-    def __init__(self):
 
     def next(self):
         raise 'Not implemented'
@@ -79,8 +79,6 @@ class Http1RequestLineFuzzer:
 
 class Http1RequestHeadersFuzzer:
 
-    def __init__(self):
-
     def next(self):
         raise 'Not implemented'
 
@@ -94,8 +92,6 @@ class Http1RequestHeadersFuzzer:
         helper.debug(Http1RequestHeadersFuzzer.__name__, message)
 
 class Http1BodyFuzzer:
-
-    def __init__(self):
 
     def next(self):
         raise 'Not implemented'
@@ -127,6 +123,3 @@ class Http1RequestFuzzer:
 
     def debug(self, message):
         helper.debug(Http1RequestFuzzer.__name__, message)
-
-# TODO: add 'HTTP1 request line only fuzzer'
-# TODO: move this file to fuzzer/http1/client
