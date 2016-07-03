@@ -40,7 +40,7 @@ elif len(parts) == 2:
     start_test = int(parts[0])
     end_test = int(parts[1])
 else:
-    raise 'Could not parse --test value, too many colons'
+    raise Exception('Could not parse --test value, too many colons')
 
 parts = args.ratio.split(':')
 if len(parts) == 1:
@@ -50,7 +50,7 @@ elif len(parts) == 2:
     min_ratio = float(parts[0])
     max_ratio = float(parts[1])
 else:
-    raise 'Could not parse --ratio value, too many colons'
+    raise Exception('Could not parse --ratio value, too many colons')
 
 if args.request:
     request_file = open(args.request, 'r')
