@@ -1,3 +1,3 @@
 #!/usr/bin/python
 
-from core import MutationalHTTPRequestFuzzer
+from fuzzer.http1 import client
