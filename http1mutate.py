@@ -5,6 +5,7 @@ import fuzzer.http1
 import socket
 import argparse
 import config
+import connection
 
 # TODO: add an option to specify a list of symbols to ignore
 
@@ -40,7 +41,7 @@ elif len(parts) == 2:
     start_test = int(parts[0])
     end_test = int(parts[1])
 else:
-    raise 'Could not parse --test value, too many colons'
+    raise Exception('Could not parse --test value, too many colons')
 
 parts = args.ratio.split(':')
 if len(parts) == 1:
@@ -50,7 +51,7 @@ elif len(parts) == 2:
     min_ratio = float(parts[0])
     max_ratio = float(parts[1])
 else:
-    raise 'Could not parse --ratio value, too many colons'
+    raise Exception('Could not parse --ratio value, too many colons')
 
 if args.request:
     request_file = open(args.request, 'r')
@@ -63,12 +64,11 @@ fuzzer = fuzzer.http1.client.DumbHTTP1RequestFuzzer(
 
 test = start_test
 while (test <= end_test):
+    client = connection.TCPClient(host, port)
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((host, port))
-        s.sendall(fuzzer.next())
-        data = s.recv(2048)
+        client.send(fuzzer.next())
+        data = client.receive()
         print data
     finally:
-        s.close
+        client.close()
     test += 1

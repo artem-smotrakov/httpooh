@@ -1,9 +1,9 @@
 # httpooh
 ## Mutation-based HTTP request fuzzer
-`mutate.py` is a mutation-based HTTP request fuzzer. It takes an HTTP request, mutates it, and send to an HTTP server. All test cases which the fuzzer generates are reproducible by specifying a number of test case with `--test` option.
+`http1mutate.py` is a mutation-based HTTP request fuzzer. It takes an HTTP request, mutates it, and send to an HTTP server. All test cases which the fuzzer generates are reproducible by specifying a number of test case with `--test` option.
 ### Usage
 ```
-usage: mutate.py [-h] [--debug] [--port PORT] [--host HOST] [--seed SEED]
+usage: http1mutate.py [-h] [--debug] [--port PORT] [--host HOST] [--seed SEED]
                  [--test TEST] [--ratio RATIO] [--request REQUEST]
 
 optional arguments:
@@ -19,11 +19,13 @@ optional arguments:
   --request REQUEST  path to file with HTTP request to fuzz
   ```
 ### Examples
-#### Use build-in HTTP request, generate 10 fuzzed HTTP requests, modify %5 of the original request, send requests to an HTTP server on port 55555  
+
+Use build-in HTTP request, generate 10 fuzzed HTTP requests, modify %5 of the original request, send requests to an HTTP server on port 55555  
 ```
-./mutate.py --port 55555 --ratio 0.05 --test 0:10
+./http1mutate.py --port 55555 --ratio 0.05 --test 0:10
 ```
-#### Repeat test case #5 from the command above
+
+Repeat test case #5 from the command above
 ```
-./mutate.py --port 55555 --ratio 0.05 --test 5
+./http1mutate.py --port 55555 --ratio 0.05 --test 5
 ```
