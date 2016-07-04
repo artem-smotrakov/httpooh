@@ -5,6 +5,7 @@ import random
 import socket
 import connection
 import core
+import settings
 
 class DumbHTTP2ClientFuzzer:
 
