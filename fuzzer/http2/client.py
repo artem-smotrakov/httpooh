@@ -4,6 +4,7 @@ import helper
 import random
 import socket
 import connection
+import core
 
 class DumbHTTP2ClientFuzzer:
 
@@ -45,7 +46,7 @@ class DumbHTTP2ClientFuzzer:
                 self.__log('connect to %s:%d, and send a client connection preface'
                            % (self.__host, self.__port))
                 self.__client.connect()
-                self.__client.send(self.__getpreface())
+                self.__client.send(core.getclientpreface())
                 # TODO: send a valid Settings frame (see RFC 7540)
 
             try:
@@ -66,7 +67,3 @@ class DumbHTTP2ClientFuzzer:
 
     def close(self):
         self.__client.close()
-
-    # returns a client connection preface string
-    def __getpreface(self):
-        return bytearray('PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n', 'ascii')
