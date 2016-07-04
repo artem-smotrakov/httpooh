@@ -5,6 +5,7 @@ import fuzzer.http1
 import socket
 import argparse
 import config
+import connection
 
 # TODO: add an option to specify a list of symbols to ignore
 
@@ -63,12 +64,11 @@ fuzzer = fuzzer.http1.client.DumbHTTP1RequestFuzzer(
 
 test = start_test
 while (test <= end_test):
+    client = connection.TCPClient(host, port)
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((host, port))
-        s.sendall(fuzzer.next())
-        data = s.recv(2048)
+        client.send(fuzzer.next())
+        data = client.receive()
         print data
     finally:
-        s.close
+        client.close()
     test += 1
