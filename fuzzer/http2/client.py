@@ -13,6 +13,7 @@ class DumbHTTP2ClientFuzzer:
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
+        self.__is_tls = is_tls
         self.__seed = seed
         self.__min_ratio = min_ratio
         self.__max_ratio = max_ratio
@@ -23,14 +24,8 @@ class DumbHTTP2ClientFuzzer:
         self.__random.seed(self.__seed)
         self.__random.jumpahead(self.__start_test)
 
-        if is_tls is True:
-            raise Exception('TLS connection is not supported yet')
-        else:
-            self.__client = connection.TCPClient(host, port)
-
     def next(self):
-        # TODO: implement
-        raise Exception('Not implemented yet')
+        return 'Like most of life\'s problems, this one can be solved with bending'
 
     def __debug(self, message):
         helper.debug(DumbHTTP2ClientFuzzer.__name__, message)
@@ -39,12 +34,39 @@ class DumbHTTP2ClientFuzzer:
         print "%s: %s" % (DumbHTTP2ClientFuzzer.__name__, message)
 
     def run(self):
+        if self.__is_tls is True:
+            raise Exception('TLS connection is not supported yet')
+        else:
+            self.__client = connection.TCPClient(self.__host, self.__port)
+
         test = self.__start_test
         while (test <= self.__end_test):
-            self.__client.send(self.next())
-            data = self.__client.receive()
-            self.__log('received data: %s' % data)
+            if self.__client.isconnected() is False:
+                self.__log('connect to %s:%d, and send a client connection preface'
+                           % (self.__host, self.__port))
+                self.__client.connect()
+                self.__client.send(self.__getpreface())
+                # TODO: send a valid Settings frame (see RFC 7540)
+
+            try:
+                self.__client.send(self.next())
+            except socket.error as msg:
+                # move on to next test only if current one was successfully sent out
+                # TODO: delay?
+                self.__log('a error occured while sending data, re-connect and send it again: %s' % msg)
+                continue
+
+            try:
+                data = self.__client.receive()
+                self.__log('received data: %s' % data)
+            except socket.error as msg:
+                self.__log('a error occured while receiving data, ignore it: %s' % msg)
+
             test += 1
 
     def close(self):
         self.__client.close()
+
+    # returns a client connection preface string
+    def __getpreface(self):
+        return bytearray('PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n', 'ascii')
