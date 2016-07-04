@@ -5,9 +5,6 @@ import fuzzer.http2
 import argparse
 import config
 
-# TODO: TCP client
-# TODO: TLS client
-
 # TODO: What can we fuzz?
 #       1. HTTP Upgrade request: request line, Host header, Connection header, Upgrade header,
 #                                HTTP2-Settings header which contains Settings frame)
@@ -69,5 +66,5 @@ else:
     raise Exception('Could not parse --ratio value, too many colons')
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
-                host, port, seed, min_ratio, max_ratio, start_test, end_test)
+                host, port, False, seed, min_ratio, max_ratio, start_test, end_test)
 fuzzer.run()
