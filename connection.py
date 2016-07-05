@@ -14,7 +14,7 @@ class TCPClient:
 
     def connect(self):
         self.__connected = False
-        self.__log('connect to %s:%d' % (self.__host, self.__port))
+        self.__log('connect to {0}:{1:d}'.format(self.__host, self.__port))
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.connect((self.__host, self.__port))
         self.__connected = True
@@ -26,7 +26,7 @@ class TCPClient:
             self.__socket.sendall(data)
         except socket.error as msg:
             self.__connected = False
-            self.__log('could not send data: %s' % msg)
+            self.__log('could not send data: {0}'.format(msg))
             raise
 
     def receive(self, length = 1024):
@@ -36,7 +36,7 @@ class TCPClient:
             return self.__socket.recv(length)
         except socket.error as msg:
             self.__connected = False
-            self.__log('could not receive data: %s' % msg)
+            self.__log('could not receive data: {0}'.format(msg))
             raise
 
     def isconnected(self):
@@ -47,7 +47,7 @@ class TCPClient:
         self.__socket.close()
 
     def __log(self, message):
-        print "%s: %s" % (TCPClient.__name__, message)
+        print('{0}: {1}'.format(TCPClient.__name__, message))
 
 # StubbornTCPClient makes multiple attempts to connect and send data
 # if an I/O error occured
@@ -77,12 +77,12 @@ class StubbornTCPClient:
             attempt += 1
 
             if self.__connected is False or error is True:
-                self.__log('connect to %s:%d, attempt #%d'
-                           % (self.__host, self.__port, attempt))
+                self.__log('connect to {0}:{1:d}, attempt #{2:d}'
+                           .format(self.__host, self.__port, attempt))
                 try:
                     self.connect()
                 except socket.error as msg:
-                    self.__log('could not connect: %s' % msg)
+                    self.__log('could not connect: {0}'.format(msg))
                     time.sleep(self.__delay)
                     continue
 
@@ -90,19 +90,19 @@ class StubbornTCPClient:
                 self.__socket.sendall(data)
                 break
             except socket.error as msg:
-                self.__log('could not send data: %s' % msg)
+                self.__log('could not send data: {0}'.format(msg))
                 error = True
                 continue
 
         if attempt == self.__max_attempts:
-            raise Exception('Could not connect to remote host %s:%d'
-                                % (self.__host, self.__port))
+            raise Exception('Could not connect to remote host {0}:{1:d}'
+                            .format(self.__host, self.__port))
 
     def receive(self, length = 1024):
         try:
             return self.__socket.recv(length)
         except socket.error as msg:
-            self.__log('could not receive data: %s' % msg)
+            self.__log('could not receive data: {0}'.format(msg))
             return None
 
     def isconnected(self):
@@ -113,4 +113,4 @@ class StubbornTCPClient:
         self.__socket.close()
 
     def __log(self, message):
-        print "%s: %s" % (StubbornTCPClient.__name__, message)
+        print('{0}: {1}'.format(StubbornTCPClient.__name__, message))

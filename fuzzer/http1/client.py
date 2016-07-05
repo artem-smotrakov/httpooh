@@ -25,36 +25,35 @@ class DumbHTTP1RequestFuzzer:
         self.__test = self.__start_test
         self.__random = random.Random()
         self.__random.seed(self.__seed)
-        self.__random.jumpahead(self.__start_test)
         self.__random_n = random.Random()
         self.__random_position = random.Random()
         self.__random_byte = random.Random()
 
     def next(self):
-        self.debug('next(): test = %d' % self.__test)
-        fuzzed = list(self.__request)
-        seed = self.__random.random()
+        self.debug('next(): test = {0:d}'.format(self.__test))
+        fuzzed = bytearray(self.__request, 'ascii')
+        seed = self.__random.random() + self.__test
         if self.__min_bytes == self.__max_bytes:
             n = self.__min_bytes
         else:
             self.__random_n.seed(seed)
             n = self.__random_n.randrange(self.__min_bytes, self.__max_bytes);
-        self.debug('next(): n = %d' % n)
+        self.debug('next(): n = {0:d}'.format(n))
         self.__random_position.seed(seed)
         self.__random_byte.seed(seed)
         i = 0
         while (i < n):
-            pos = self.__random_position.randint(0, len(self.__request) - 1)
+            pos = self.__random_position.randint(0, len(fuzzed) - 1)
             if self.isignored(fuzzed[pos]):
-                self.debug('next(): ignore symbol (pos = %d)' % pos)
+                self.debug('next(): ignore symbol (pos = {0:d})'.format(pos))
                 continue
             b = self.__random_byte.randint(0, 255)
-            fuzzed[pos] = chr(b)
+            fuzzed[pos] = b
             i += 1
         self.__test += 1
-        request = ''.join(fuzzed)
-        self.debug('next(): request: \n%s' % request)
-        return request
+        self.debug('next(): request: \n{0}'
+                   .format(fuzzed.decode('ascii', 'ignore')))
+        return fuzzed
 
     def isignored(self, symbol):
         return symbol in self.__ignored_symbols
