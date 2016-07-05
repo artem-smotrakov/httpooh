@@ -3,4 +3,5 @@
 import config
 
 def debug(classname, message):
-    if (config.current.debug): print "%s: %s" % (classname, message)
+    if (config.current.debug):
+        print('{0}: {1}'.format(classname, message))

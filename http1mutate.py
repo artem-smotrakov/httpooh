@@ -68,7 +68,7 @@ while (test <= end_test):
     try:
         client.send(fuzzer.next())
         data = client.receive()
-        print data
+        print(data.decode('ascii', 'ignore'))
     finally:
         client.close()
     test += 1

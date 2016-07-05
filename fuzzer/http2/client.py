@@ -1,11 +1,9 @@
 #!/usr/bin/python
 
 import helper
-import random
 import socket
 import connection
-import core
-import settings
+import fuzzer.http2.core
 
 class DumbHTTP2ClientFuzzer:
 
@@ -22,18 +20,14 @@ class DumbHTTP2ClientFuzzer:
         self.__start_test = start_test
         self.__end_test = end_test
 
-        self.__random = random.Random()
-        self.__random.seed(self.__seed)
-        self.__random.jumpahead(self.__start_test)
-
     def next(self):
-        return 'Like most of life\'s problems, this one can be solved with bending'
+        return bytes('Like most of life\'s problems, this one can be solved with bending', 'ascii')
 
     def __debug(self, message):
         helper.debug(DumbHTTP2ClientFuzzer.__name__, message)
 
     def __log(self, message):
-        print "%s: %s" % (DumbHTTP2ClientFuzzer.__name__, message)
+        print('{0}: {1}'.format(DumbHTTP2ClientFuzzer.__name__, message))
 
     def run(self):
         if self.__is_tls is True:
@@ -44,10 +38,10 @@ class DumbHTTP2ClientFuzzer:
         test = self.__start_test
         while (test <= self.__end_test):
             if self.__client.isconnected() is False:
-                self.__log('connect to %s:%d, and send a client connection preface'
-                           % (self.__host, self.__port))
+                self.__log('connect to {0}:{1:d}, and send a client connection preface'
+                           .format(self.__host, self.__port))
                 self.__client.connect()
-                self.__client.send(core.getclientpreface())
+                self.__client.send(fuzzer.http2.core.getclientpreface())
                 # TODO: send a valid Settings frame (see RFC 7540)
 
             try:
@@ -55,14 +49,14 @@ class DumbHTTP2ClientFuzzer:
             except socket.error as msg:
                 # move on to next test only if current one was successfully sent out
                 # TODO: delay?
-                self.__log('a error occured while sending data, re-connect and send it again: %s' % msg)
+                self.__log('a error occured while sending data, re-connect and send it again: {0}'.format(msg))
                 continue
 
             try:
                 data = self.__client.receive()
-                self.__log('received data: %s' % data)
+                self.__log('received data: {0}'.format(data.decode('ascii', 'ignore')))
             except socket.error as msg:
-                self.__log('a error occured while receiving data, ignore it: %s' % msg)
+                self.__log('a error occured while receiving data, ignore it: {0}'.format(msg))
 
             test += 1
 
