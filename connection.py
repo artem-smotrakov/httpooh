@@ -4,6 +4,7 @@ import socket
 import time
 
 # TCPClient is a simple TCP client which just wraps socket's methods
+# It assumes that a connection is closed if any I/O error occured
 class TCPClient:
 
     def __init__(self, host, port):
@@ -12,17 +13,34 @@ class TCPClient:
         self.__connected = False
 
     def connect(self):
+        self.__connected = False
         self.__log('connect to %s:%d' % (self.__host, self.__port))
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.connect((self.__host, self.__port))
+        self.__connected = True
 
     def send(self, data):
-        if self.__connected is False:
-            self.connect()
-        self.__socket.sendall(data)
+        try:
+            if self.__connected is False:
+                self.connect()
+            self.__socket.sendall(data)
+        except socket.error as msg:
+            self.__connected = False
+            self.__log('could not send data: %s' % msg)
+            raise
 
     def receive(self, length = 1024):
-        return self.__socket.recv(length)
+        try:
+            if self.__connected is False:
+                self.connect()
+            return self.__socket.recv(length)
+        except socket.error as msg:
+            self.__connected = False
+            self.__log('could not receive data: %s' % msg)
+            raise
+
+    def isconnected(self):
+        return self.__connected
 
     def close(self):
         self.__connected = False
@@ -86,6 +104,9 @@ class StubbornTCPClient:
         except socket.error as msg:
             self.__log('could not receive data: %s' % msg)
             return None
+
+    def isconnected(self):
+        return self.__connected
 
     def close(self):
         self.__connected = False
