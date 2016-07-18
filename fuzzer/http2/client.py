@@ -4,6 +4,7 @@ import helper
 import socket
 import connection
 import fuzzer.http2.core
+from fuzzer.http2.settings import SettingsFrame
 
 class DumbHTTP2ClientFuzzer:
 
@@ -42,7 +43,9 @@ class DumbHTTP2ClientFuzzer:
                            .format(self.__host, self.__port))
                 self.__client.connect()
                 self.__client.send(fuzzer.http2.core.getclientpreface())
-                # TODO: send a valid Settings frame (see RFC 7540)
+                # send a Settings frame
+                settings = SettingsFrame()
+                self.__client.send(settings.encode())
 
             try:
                 self.__client.send(self.next())
