@@ -61,3 +61,13 @@ class SettingsFrame(Frame):
 
     def encode_value(self, value):
         return fuzzer.http2.core.encode_unsigned_integer(value, self.__value_length)
+
+
+# TODO: use DumbHTTP1RequestFuzzer (make a general byte-flipping fuzzer)
+class DumbSettingsFuzzer:
+
+    def __init__(self):
+        raise Exception('Not implemented yet')
+
+    def next(self):
+        raise Exception('Not implemented yet')
