@@ -4,7 +4,7 @@ import helper
 import socket
 import connection
 import fuzzer.http2.core
-from fuzzer.http2.settings import SettingsFrame
+from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 
 class DumbHTTP2ClientFuzzer:
 
@@ -20,9 +20,10 @@ class DumbHTTP2ClientFuzzer:
         self.__max_ratio = max_ratio
         self.__start_test = start_test
         self.__end_test = end_test
+        self.__settings_fuzzer = DumbSettingsFuzzer()
 
     def next(self):
-        return bytes('Like most of life\'s problems, this one can be solved with bending', 'ascii')
+        return self.__settings_fuzzer.next()
 
     def __debug(self, message):
         helper.debug(DumbHTTP2ClientFuzzer.__name__, message)
