@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import helper
+import connection
 from fuzzer.core import DumbAsciiStringFuzzer
 
 # TODO: add comments
@@ -10,9 +11,13 @@ from fuzzer.core import DumbAsciiStringFuzzer
 # TODO: add 'HTTP1 request line only fuzzer'
 class DumbHTTP1RequestFuzzer:
 
-    def __init__(self, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
-                 start_test = 0, ignored_symbols = ('\r', '\n')):
+    def __init__(self, host, port, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0, end_test = 0, ignored_symbols = ('\r', '\n')):
         # TODO: check if parameters are valid
+        self.__host = host
+        self.__port = port
+        self.__end_test = end_test
+        self.__start_test = start_test
         self.__dumb_ascii_string_fuzzer = DumbAsciiStringFuzzer(
             request, seed, min_ratio, max_ratio, start_test, ignored_symbols)
 
@@ -22,9 +27,20 @@ class DumbHTTP1RequestFuzzer:
     def next(self):
         return self.__dumb_ascii_string_fuzzer.next()
 
+    def run(self):
+        test = self.__start_test
+        while (test <= self.__end_test):
+            client = connection.TCPClient(self.__host, self.__port)
+            try:
+                client.send(self.next())
+                data = client.receive()
+                print(data.decode('ascii', 'ignore'))
+            finally:
+                client.close()
+            test += 1
+
     def verbose(self, message):
         helper.verbose(DumbHTTP1RequestFuzzer.__name__, message)
-
 
 class Http1RequestLineFuzzer:
 

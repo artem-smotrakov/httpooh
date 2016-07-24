@@ -2,10 +2,8 @@
 
 import sys
 import fuzzer.http1
-import socket
 import argparse
 import config
-import connection
 
 # TODO: add an option to specify a list of symbols to ignore
 
@@ -59,15 +57,5 @@ else:
     request = 'GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n'
 
 fuzzer = fuzzer.http1.client.DumbHTTP1RequestFuzzer(
-            request, seed, min_ratio, max_ratio, start_test)
-
-test = start_test
-while (test <= end_test):
-    client = connection.TCPClient(host, port)
-    try:
-        client.send(fuzzer.next())
-        data = client.receive()
-        print(data.decode('ascii', 'ignore'))
-    finally:
-        client.close()
-    test += 1
+            host, port, request, seed, min_ratio, max_ratio, start_test, end_test)
+fuzzer.run()
