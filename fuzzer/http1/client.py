@@ -22,8 +22,8 @@ class DumbHTTP1RequestFuzzer:
     def next(self):
         return self.__dumb_ascii_string_fuzzer.next()
 
-    def debug(self, message):
-        helper.debug(DumbHTTP1RequestFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(DumbHTTP1RequestFuzzer.__name__, message)
 
 
 class Http1RequestLineFuzzer:
@@ -37,8 +37,8 @@ class Http1RequestLineFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestLineFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestLineFuzzer.__name__, message)
 
 class Http1RequestHeadersFuzzer:
 
@@ -51,8 +51,8 @@ class Http1RequestHeadersFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestHeadersFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestHeadersFuzzer.__name__, message)
 
 class Http1BodyFuzzer:
 
@@ -65,8 +65,8 @@ class Http1BodyFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1BodyFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1BodyFuzzer.__name__, message)
 
 class Http1RequestFuzzer:
 
@@ -84,5 +84,5 @@ class Http1RequestFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestFuzzer.__name__, message)

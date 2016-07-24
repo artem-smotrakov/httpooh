@@ -10,7 +10,7 @@ import config
 #                                HTTP2-Settings header which contains Settings frame)
 #       2. Connection preface (not sure)
 #       3. Frames: length, type, flags, stream identifier, payload (random payload)
-#       4. Settings frame (randomly mutate a valid frame)
+#       4. Settings frame (randomly mutate a valid frame) (done, see DumbSettingsFuzzer)
 #       5. DATA frame
 #       6. HEADERS frame
 #       7. PRIORITY frame
@@ -23,7 +23,7 @@ import config
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--debug', help='enable debug output', action='store_true',
+parser.add_argument('--verbose', help='more logs', action='store_true',
                     default=False)
 parser.add_argument('--port', help='port number', type=int, default=80)
 parser.add_argument('--host', help='host name', default='localhost')
@@ -37,9 +37,8 @@ parser.add_argument('--ratio',
                     default='0.05')
 args = parser.parse_args()
 
-if args.debug:
-    print('debug output turned on')
-    config.current.debug = True
+if args.verbose:
+    config.current.verbose = True
 
 host = args.host
 port = args.port

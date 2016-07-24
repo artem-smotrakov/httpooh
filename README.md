@@ -3,12 +3,12 @@
 `http1mutate.py` is a mutation-based HTTP request fuzzer. It takes an HTTP request, mutates it, and send to an HTTP server. All test cases which the fuzzer generates are reproducible by specifying a number of test case with `--test` option.
 ### Usage
 ```
-usage: http1mutate.py [-h] [--debug] [--port PORT] [--host HOST] [--seed SEED]
+usage: http1mutate.py [-h] [--verbose] [--port PORT] [--host HOST] [--seed SEED]
                  [--test TEST] [--ratio RATIO] [--request REQUEST]
 
 optional arguments:
   -h, --help         show this help message and exit
-  --debug            enable debug output
+  --verbose          more logs
   --port PORT        port number
   --host HOST        host name
   --seed SEED        seed for pseudo-random generator

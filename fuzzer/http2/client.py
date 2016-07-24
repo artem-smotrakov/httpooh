@@ -25,8 +25,8 @@ class DumbHTTP2ClientFuzzer:
     def next(self):
         return self.__settings_fuzzer.next()
 
-    def __debug(self, message):
-        helper.debug(DumbHTTP2ClientFuzzer.__name__, message)
+    def __verbose(self, message):
+        helper.verbose(DumbHTTP2ClientFuzzer.__name__, message)
 
     def __log(self, message):
         print('{0}: {1}'.format(DumbHTTP2ClientFuzzer.__name__, message))
