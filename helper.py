@@ -2,9 +2,12 @@
 
 import config
 
-def verbose(classname, message):
+def verbose(first, second = None):
     if (config.current.verbose):
-        print('{0}: {1}'.format(classname, message))
+        if second is None:
+            print(first)
+        else:
+            print('[{0}]: {1}'.format(first, second))
 
 def verbose_dump(classname, message, data):
     hex_data = ' '.join('{:02x}'.format(b) for b in data)

@@ -29,18 +29,21 @@ class DumbHTTP1RequestFuzzer:
 
     def run(self):
         test = self.__start_test
+        self.__info('started, test range {0:d}:{1:d}'
+                  .format(self.__start_test, self.__end_test))
         while (test <= self.__end_test):
+            self.__info('test {0:d}: send'.format(test))
             client = connection.TCPClient(self.__host, self.__port)
             try:
                 client.send(self.next())
                 data = client.receive()
-                print(data.decode('ascii', 'ignore'))
+                self.__info('test {0:d}: received: {1}'.format(test, data.decode('ascii', 'ignore').split('\n', 1)[0]))
             finally:
                 client.close()
             test += 1
 
-    def verbose(self, message):
-        helper.verbose(DumbHTTP1RequestFuzzer.__name__, message)
+    def __info(self, message):
+        print("[{0}] {1}".format(DumbHTTP1RequestFuzzer.__name__, message))
 
 class Http1RequestLineFuzzer:
 

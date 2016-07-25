@@ -25,35 +25,30 @@ class DumbByteArrayFuzzer:
         self.__random_byte = random.Random()
 
     def next(self):
-        self.verbose('next(): test = {0:d}'.format(self.__test))
         fuzzed = self.__data[:]
         seed = self.__random.random() + self.__test
         if self.__min_bytes == self.__max_bytes:
             n = self.__min_bytes
         else:
             self.__random_n.seed(seed)
-            n = self.__random_n.randrange(self.__min_bytes, self.__max_bytes);
-        self.verbose('next(): n = {0:d}'.format(n))
+            n = self.__random_n.randrange(self.__min_bytes, self.__max_bytes)
         self.__random_position.seed(seed)
         self.__random_byte.seed(seed)
         i = 0
         while (i < n):
             pos = self.__random_position.randint(0, len(fuzzed) - 1)
             if self.isignored(fuzzed[pos]):
-                self.verbose('next(): ignore symbol (pos = {0:d})'.format(pos))
                 continue
             b = self.__random_byte.randint(0, 255)
             fuzzed[pos] = b
             i += 1
         self.__test += 1
-        self.verbose('next(): data: \n{0}'
-                   .format(fuzzed.decode('ascii', 'ignore')))
         return fuzzed
 
     def isignored(self, symbol):
         return symbol in self.__ignored_bytes
 
-    def verbose(self, message):
+    def __verbose(self, message):
         helper.verbose(DumbByteArrayFuzzer.__name__, message)
 
 class DumbAsciiStringFuzzer:
@@ -70,6 +65,3 @@ class DumbAsciiStringFuzzer:
 
     def next(self):
         return self.__byte_array_fuzzer.next()
-
-    def verbose(self, message):
-        helper.verbose(DumbAsciiStringFuzzer.__name__, message)
