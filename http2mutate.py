@@ -39,6 +39,8 @@ fuzzers_group.add_argument('--common',  action='store_true',
                            help='enable common frame fuzzer')
 fuzzers_group.add_argument('--settings', action='store_true',
                            help='enable settings frame fuzzer')
+fuzzers_group.add_argument('--headers', action='store_true',
+                           help='enable headers frame fuzzer')
 
 args = parser.parse_args()
 
@@ -81,5 +83,5 @@ else:
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
-                args.common, args.settings)
+                args.common, args.settings, args.headers)
 fuzzer.run()

@@ -7,13 +7,14 @@ import connection
 import fuzzer.http2.core
 from fuzzer.http2.core import DumbCommonFrameFuzzer
 from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
+from fuzzer.http2.headers import DumbHeadersFuzzer
 
 class DumbHTTP2ClientFuzzer:
 
     def __init__(self, host = "localhost", port = 8080, is_tls = False,
                  seed = 0, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, end_test = 0,
-                 common_fuzzer = True, settings_fuzzer = True):
+                 common_fuzzer = True, settings_fuzzer = True, headers_fuzzer = True):
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
@@ -31,6 +32,9 @@ class DumbHTTP2ClientFuzzer:
         if settings_fuzzer:
             self.__fuzzers.append(
                 DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
+        if headers_fuzzer:
+            self.__fuzzers.append(
+                DumbHeadersFuzzer(None, seed, min_ratio, max_ratio, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
