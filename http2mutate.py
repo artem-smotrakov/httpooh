@@ -60,14 +60,14 @@ if args.test:
     elif len(parts) == 2:
         start_test = int(parts[0])
         if parts[1] == '' or parts[1] == 'infinite':
-            end_test = 'infinite'
+            end_test = float('inf')
         else:
             end_test = int(parts[1])
     else:
         raise Exception('Could not parse --test value, too many colons')
 else:
     start_test = 0
-    end_test = 'infinite'
+    end_test = float('inf')
 
 parts = args.ratio.split(':')
 if len(parts) == 1:

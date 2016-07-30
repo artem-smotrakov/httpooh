@@ -50,7 +50,7 @@ class DumbHTTP2ClientFuzzer:
         self.__info('started, test range {0}:{1}'
                     .format(self.__start_test, self.__end_test))
         test = self.__start_test
-        while (self.__end_test == 'infinite' or test <= self.__end_test):
+        while (test <= self.__end_test):
             if self.__client.isconnected() is False:
                 self.__client.connect()
                 self.__info('send a client connection preface')
