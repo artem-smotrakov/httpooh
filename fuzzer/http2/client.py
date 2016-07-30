@@ -26,9 +26,11 @@ class DumbHTTP2ClientFuzzer:
         self.__fuzzers = list()
         self.__next_fuzzer = 0
         if common_fuzzer:
-            self.__fuzzers.append(DumbCommonFrameFuzzer())
+            self.__fuzzers.append(
+                DumbCommonFrameFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if settings_fuzzer:
-            self.__fuzzers.append(DumbSettingsFuzzer())
+            self.__fuzzers.append(
+                DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
