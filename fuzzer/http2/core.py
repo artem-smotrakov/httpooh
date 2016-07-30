@@ -32,7 +32,7 @@ class Frame:
         # write 24 bits of payload length
         length = len(payload)
         encoded_length = encode_unsigned_integer(length, self.__length_length)
-        self.__debug_dump("create a frame: write a length ({0:d})".format(length), encoded_length)
+        self.__verbose('create a frame: write a length ({0:d}): {1:s}'.format(length, helper.bytes2hex(encoded_length)))
         data.extend(encoded_length)
 
         # write a frame type (8 bits)
@@ -51,5 +51,6 @@ class Frame:
 
         return data
 
-    def __debug_dump(self, message, data):
-        helper.debug_dump(Frame.__name__, message, data)
+    def __verbose(self, *messages):
+        helper.verbose_with_prefix(
+            Frame.__name__, messages[0])

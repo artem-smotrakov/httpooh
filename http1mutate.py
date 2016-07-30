@@ -2,15 +2,13 @@
 
 import sys
 import fuzzer.http1
-import socket
 import argparse
 import config
-import connection
 
 # TODO: add an option to specify a list of symbols to ignore
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--debug', help='enable debug output', action='store_true',
+parser.add_argument('--verbose', help='more logs', action='store_true',
                     default=False)
 parser.add_argument('--port', help='port number', type=int, default=80)
 parser.add_argument('--host', help='host name', default='localhost')
@@ -25,9 +23,8 @@ parser.add_argument('--ratio',
 parser.add_argument('--request', help='path to file with HTTP request to fuzz')
 args = parser.parse_args()
 
-if args.debug:
-    print('debug output turned on')
-    config.current.debug = True
+if args.verbose:
+    config.current.verbose = True
 
 host = args.host
 port = args.port
@@ -60,15 +57,5 @@ else:
     request = 'GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n'
 
 fuzzer = fuzzer.http1.client.DumbHTTP1RequestFuzzer(
-            request, seed, min_ratio, max_ratio, start_test)
-
-test = start_test
-while (test <= end_test):
-    client = connection.TCPClient(host, port)
-    try:
-        client.send(fuzzer.next())
-        data = client.receive()
-        print(data.decode('ascii', 'ignore'))
-    finally:
-        client.close()
-    test += 1
+            host, port, request, seed, min_ratio, max_ratio, start_test, end_test)
+fuzzer.run()

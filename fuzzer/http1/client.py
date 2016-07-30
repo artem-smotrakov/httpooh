@@ -1,66 +1,49 @@
 #!/usr/bin/python
 
 import helper
-import random
+import connection
+from fuzzer.core import DumbAsciiStringFuzzer
 
 # TODO: add comments
 # TODO: create a test which checks that it generates the same requests
 #       for the same original request, seed and ratios
-# TODO: extract string fuzzer from this class, add end_test parameter to it
+# TODO: add end_test parameter
 # TODO: add 'HTTP1 request line only fuzzer'
 class DumbHTTP1RequestFuzzer:
 
-    def __init__(self, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
-                 start_test = 0, ignored_symbols = ('\r', '\n')):
+    def __init__(self, host, port, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0, end_test = 0, ignored_symbols = ('\r', '\n')):
         # TODO: check if parameters are valid
+        self.__host = host
+        self.__port = port
+        self.__end_test = end_test
         self.__start_test = start_test
-        self.__request = request
-        self.__seed = seed
-        self.__min_bytes = round(min_ratio * len(request));
-        self.__max_bytes = round(max_ratio * len(request));
-        self.__ignored_symbols = ignored_symbols
-        self.reset()
+        self.__dumb_ascii_string_fuzzer = DumbAsciiStringFuzzer(
+            request, seed, min_ratio, max_ratio, start_test, ignored_symbols)
 
     def reset(self):
-        self.__test = self.__start_test
-        self.__random = random.Random()
-        self.__random.seed(self.__seed)
-        self.__random_n = random.Random()
-        self.__random_position = random.Random()
-        self.__random_byte = random.Random()
+        self.__dumb_ascii_string_fuzzer.reset()
 
     def next(self):
-        self.debug('next(): test = {0:d}'.format(self.__test))
-        fuzzed = bytearray(self.__request, 'ascii')
-        seed = self.__random.random() + self.__test
-        if self.__min_bytes == self.__max_bytes:
-            n = self.__min_bytes
-        else:
-            self.__random_n.seed(seed)
-            n = self.__random_n.randrange(self.__min_bytes, self.__max_bytes);
-        self.debug('next(): n = {0:d}'.format(n))
-        self.__random_position.seed(seed)
-        self.__random_byte.seed(seed)
-        i = 0
-        while (i < n):
-            pos = self.__random_position.randint(0, len(fuzzed) - 1)
-            if self.isignored(fuzzed[pos]):
-                self.debug('next(): ignore symbol (pos = {0:d})'.format(pos))
-                continue
-            b = self.__random_byte.randint(0, 255)
-            fuzzed[pos] = b
-            i += 1
-        self.__test += 1
-        self.debug('next(): request: \n{0}'
-                   .format(fuzzed.decode('ascii', 'ignore')))
-        return fuzzed
+        return self.__dumb_ascii_string_fuzzer.next()
 
-    def isignored(self, symbol):
-        return symbol in self.__ignored_symbols
+    def run(self):
+        test = self.__start_test
+        self.__info('started, test range {0:d}:{1:d}'
+                  .format(self.__start_test, self.__end_test))
+        while (test <= self.__end_test):
+            self.__info('test {0:d}: send'.format(test))
+            client = connection.TCPClient(self.__host, self.__port)
+            try:
+                client.send(self.next())
+                data = client.receive()
+                self.__info('test {0:d}: received: {1}'.format(test, data.decode('ascii', 'ignore').split('\n', 1)[0]))
+            finally:
+                client.close()
+            test += 1
 
-    def debug(self, message):
-        helper.debug(DumbHTTP1RequestFuzzer.__name__, message)
-
+    def __info(self, message):
+        print("[{0}] {1}".format(DumbHTTP1RequestFuzzer.__name__, message))
 
 class Http1RequestLineFuzzer:
 
@@ -73,8 +56,8 @@ class Http1RequestLineFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestLineFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestLineFuzzer.__name__, message)
 
 class Http1RequestHeadersFuzzer:
 
@@ -87,8 +70,8 @@ class Http1RequestHeadersFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestHeadersFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestHeadersFuzzer.__name__, message)
 
 class Http1BodyFuzzer:
 
@@ -101,8 +84,8 @@ class Http1BodyFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1BodyFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1BodyFuzzer.__name__, message)
 
 class Http1RequestFuzzer:
 
@@ -120,5 +103,5 @@ class Http1RequestFuzzer:
     def getvalid(self):
         raise Exception('Not implemented')
 
-    def debug(self, message):
-        helper.debug(Http1RequestFuzzer.__name__, message)
+    def verbose(self, message):
+        helper.verbose(Http1RequestFuzzer.__name__, message)

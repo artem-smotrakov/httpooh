@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
+import textwrap
 import helper
 import socket
 import connection
 import fuzzer.http2.core
-from fuzzer.http2.settings import SettingsFrame
+from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 
 class DumbHTTP2ClientFuzzer:
 
@@ -20,15 +21,17 @@ class DumbHTTP2ClientFuzzer:
         self.__max_ratio = max_ratio
         self.__start_test = start_test
         self.__end_test = end_test
+        self.__settings_fuzzer = DumbSettingsFuzzer()
 
     def next(self):
-        return bytes('Like most of life\'s problems, this one can be solved with bending', 'ascii')
+        return self.__settings_fuzzer.next()
 
-    def __debug(self, message):
-        helper.debug(DumbHTTP2ClientFuzzer.__name__, message)
+    def __verbose(self, *messages):
+        helper.verbose_with_indent(
+            DumbHTTP2ClientFuzzer.__name__, messages[0], messages[1:])
 
-    def __log(self, message):
-        print('{0}: {1}'.format(DumbHTTP2ClientFuzzer.__name__, message))
+    def __info(self, message):
+        helper.verbose_with_prefix(DumbHTTP2ClientFuzzer.__name__, message)
 
     def run(self):
         if self.__is_tls is True:
@@ -36,30 +39,35 @@ class DumbHTTP2ClientFuzzer:
         else:
             self.__client = connection.TCPClient(self.__host, self.__port)
 
+        self.__info('started, test range {0:d}:{1:d}'
+                    .format(self.__start_test, self.__end_test))
         test = self.__start_test
         while (test <= self.__end_test):
             if self.__client.isconnected() is False:
-                self.__log('connect to {0}:{1:d}, and send a client connection preface'
-                           .format(self.__host, self.__port))
                 self.__client.connect()
+                self.__info('send a client connection preface')
                 self.__client.send(fuzzer.http2.core.getclientpreface())
-                # send a Settings frame
+                self.__info('send a valid settings frame')
                 settings = SettingsFrame()
                 self.__client.send(settings.encode())
 
             try:
+                self.__info('test {0:d}: start'.format(test))
                 self.__client.send(self.next())
             except socket.error as msg:
                 # move on to next test only if current one was successfully sent out
                 # TODO: delay?
-                self.__log('a error occured while sending data, re-connect and send it again: {0}'.format(msg))
+                self.__info('test {0:d}: a error occured while sending data, re-connect and send it again: {1}'
+                            .format(test, msg))
                 continue
 
             try:
                 data = self.__client.receive()
-                self.__log('received data: {0}'.format(data.decode('ascii', 'ignore')))
+                self.__info('test {0:d}: received reply'.format(test))
+                self.__verbose('test {0:d}: received data:'.format(test), helper.bytes2hex(data))
             except socket.error as msg:
-                self.__log('a error occured while receiving data, ignore it: {0}'.format(msg))
+                self.__info('test {0:d}: a error occured while receiving data, ignore it: {1}'
+                            .format(test, msg))
 
             test += 1
 

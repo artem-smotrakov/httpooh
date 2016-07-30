@@ -2,18 +2,18 @@
 
 import fuzzer.http2.core
 from fuzzer.http2.core import Frame
+from fuzzer.core import DumbByteArrayFuzzer
 
 # HTTP/2 Settings frame
 # See https://tools.ietf.org/html/rfc7540#section-6.5 for details
 class SettingsFrame(Frame):
 
-    def __init__(self):
-        # SETTINGS frame type is 0x4
-        self.__settings_frame_type = 0x4
-        self.__identifier_length = 2
-        self.__value_length = 4
+    frame_type = 0x4    # SETTINGS frame type is 0x4
+    __identifier_length = 2
+    __value_length = 4
 
-        Frame.__init__(self, self.__settings_frame_type)
+    def __init__(self):
+        Frame.__init__(self, SettingsFrame.frame_type)
 
         # parameters defined by the spec
         self.__settings_header_table_size = 4096      # the initial value recommended by the spec
@@ -27,7 +27,7 @@ class SettingsFrame(Frame):
                                                       # the initial value recommended by the spec
         self.__settings_max_header_list_size = 65535  # the spec doesn't difine the initial value
                                                       # for this parameter
-    def encode(self):
+    def payload(self):
         payload = bytearray()
 
         # write SETTINGS_HEADER_TABLE_SIZE (0x1) parameter
@@ -48,7 +48,10 @@ class SettingsFrame(Frame):
         # write SETTINGS_MAX_HEADER_LIST_SIZE (0x6) parameter
         payload.extend(self.encode_parameter(0x6, self.__settings_max_header_list_size))
 
-        return Frame.encode(self, payload)
+        return payload
+
+    def encode(self):
+        return Frame.encode(self, self.payload())
 
     def encode_parameter(self, identifier, value):
         parameter = bytearray()
@@ -57,7 +60,26 @@ class SettingsFrame(Frame):
         return parameter
 
     def encode_identifier(self, identifier):
-        return fuzzer.http2.core.encode_unsigned_integer(identifier, self.__identifier_length)
+        return fuzzer.http2.core.encode_unsigned_integer(identifier, SettingsFrame.__identifier_length)
 
     def encode_value(self, value):
-        return fuzzer.http2.core.encode_unsigned_integer(value, self.__value_length)
+        return fuzzer.http2.core.encode_unsigned_integer(value, SettingsFrame.__value_length)
+
+class DumbSettingsFuzzer:
+
+    def __init__(self, payload = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0, ignored_bytes = ()):
+        if payload is None:
+            self.__payload = SettingsFrame().payload()  # default settings
+        else:
+            self.__payload = payload
+        self.__dumb_byte_array_fuzzer = DumbByteArrayFuzzer(
+            self.__payload, seed, min_ratio, max_ratio, start_test, ignored_bytes)
+
+    def next(self):
+        fuzzed_payload = self.__dumb_byte_array_fuzzer.next()
+        return Frame(SettingsFrame.frame_type).encode(fuzzed_payload)
+
+    def reset(self):
+        self.__dumb_byte_array_fuzzer.reset()
+
