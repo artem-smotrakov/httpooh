@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import helper
 import fuzzer.http2.core
 from fuzzer.http2.core import Frame
 from fuzzer.core import DumbByteArrayFuzzer
@@ -77,9 +78,13 @@ class DumbSettingsFuzzer:
             self.__payload, seed, min_ratio, max_ratio, start_test, ignored_bytes)
 
     def next(self):
+        self.__info('generate a settings frame')
         fuzzed_payload = self.__dumb_byte_array_fuzzer.next()
         return Frame(SettingsFrame.frame_type).encode(fuzzed_payload)
 
     def reset(self):
         self.__dumb_byte_array_fuzzer.reset()
 
+    def __info(self, *messages):
+        helper.print_with_indent(
+            DumbSettingsFuzzer.__name__, messages[0], messages[1:])
