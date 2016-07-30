@@ -45,10 +45,10 @@ class DumbHTTP2ClientFuzzer:
         else:
             self.__client = connection.TCPClient(self.__host, self.__port)
 
-        self.__info('started, test range {0:d}:{1:d}'
+        self.__info('started, test range {0}:{1}'
                     .format(self.__start_test, self.__end_test))
         test = self.__start_test
-        while (test <= self.__end_test):
+        while (self.__end_test == 'infinite' or test <= self.__end_test):
             if self.__client.isconnected() is False:
                 self.__client.connect()
                 self.__info('send a client connection preface')

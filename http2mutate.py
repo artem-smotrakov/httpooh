@@ -30,8 +30,7 @@ parser.add_argument('--host', help='host name', default='localhost')
 parser.add_argument('--seed', help='seed for pseudo-random generator', type=int,
                     default=0)
 parser.add_argument('--test',
-                    help='test range, it can be a number, or an interval "start:end"',
-                    default='0')
+                    help='test range, it can be a number, or an interval "start:end"')
 parser.add_argument('--ratio',
                     help='fuzzing ratio range, it can be a number, or an interval "start:end"',
                     default='0.05')
@@ -53,15 +52,22 @@ host = args.host
 port = args.port
 seed = args.seed
 
-parts = args.test.split(':')
-if len(parts) == 1:
-    start_test = int(parts[0])
-    end_test = start_test
-elif len(parts) == 2:
-    start_test = int(parts[0])
-    end_test = int(parts[1])
+if args.test:
+    parts = args.test.split(':')
+    if len(parts) == 1:
+        start_test = int(parts[0])
+        end_test = start_test
+    elif len(parts) == 2:
+        start_test = int(parts[0])
+        if parts[1] == '' or parts[1] == 'infinite':
+            end_test = 'infinite'
+        else:
+            end_test = int(parts[1])
+    else:
+        raise Exception('Could not parse --test value, too many colons')
 else:
-    raise Exception('Could not parse --test value, too many colons')
+    start_test = 0
+    end_test = 'infinite'
 
 parts = args.ratio.split(':')
 if len(parts) == 1:
