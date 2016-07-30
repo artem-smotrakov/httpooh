@@ -5,13 +5,15 @@ import helper
 import socket
 import connection
 import fuzzer.http2.core
+from fuzzer.http2.core import DumbCommonFrameFuzzer
 from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 
 class DumbHTTP2ClientFuzzer:
 
     def __init__(self, host = "localhost", port = 8080, is_tls = False,
                  seed = 0, min_ratio = 0.01, max_ratio = 0.05,
-                 start_test = 0, end_test = 0):
+                 start_test = 0, end_test = 0,
+                 common_fuzzer = True, settings_fuzzer = True):
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
@@ -21,17 +23,21 @@ class DumbHTTP2ClientFuzzer:
         self.__max_ratio = max_ratio
         self.__start_test = start_test
         self.__end_test = end_test
-        self.__settings_fuzzer = DumbSettingsFuzzer()
+        self.__fuzzers = list()
+        self.__next_fuzzer = 0
+        if common_fuzzer:
+            self.__fuzzers.append(DumbCommonFrameFuzzer())
+        if settings_fuzzer:
+            self.__fuzzers.append(DumbSettingsFuzzer())
 
     def next(self):
-        return self.__settings_fuzzer.next()
+        fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
+        self.__next_fuzzer = (self.__next_fuzzer + 1) % len(self.__fuzzers)
+        return fuzzed_data
 
-    def __verbose(self, *messages):
-        helper.verbose_with_indent(
+    def __info(self, *messages):
+        helper.print_with_indent(
             DumbHTTP2ClientFuzzer.__name__, messages[0], messages[1:])
-
-    def __info(self, message):
-        helper.verbose_with_prefix(DumbHTTP2ClientFuzzer.__name__, message)
 
     def run(self):
         if self.__is_tls is True:
@@ -48,6 +54,8 @@ class DumbHTTP2ClientFuzzer:
                 self.__info('send a client connection preface')
                 self.__client.send(fuzzer.http2.core.getclientpreface())
                 self.__info('send a valid settings frame')
+
+                # TODO: it can be created once
                 settings = SettingsFrame()
                 self.__client.send(settings.encode())
 
@@ -57,14 +65,14 @@ class DumbHTTP2ClientFuzzer:
             except socket.error as msg:
                 # move on to next test only if current one was successfully sent out
                 # TODO: delay?
-                self.__info('test {0:d}: a error occured while sending data, re-connect and send it again: {1}'
+                self.__info('test {0:d}: a error occured while sending data: {1}'
                             .format(test, msg))
+                self.__info('test {0:d}: re-connect'.format(test))
                 continue
 
             try:
                 data = self.__client.receive()
-                self.__info('test {0:d}: received reply'.format(test))
-                self.__verbose('test {0:d}: received data:'.format(test), helper.bytes2hex(data))
+                self.__info('test {0:d}: received data:'.format(test), helper.bytes2hex(data))
             except socket.error as msg:
                 self.__info('test {0:d}: a error occured while receiving data, ignore it: {1}'
                             .format(test, msg))

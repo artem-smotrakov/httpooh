@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import helper
+from fuzzer.core import DumbByteArrayFuzzer
 
 # returns a client connection preface sequence
 def getclientpreface():
@@ -32,7 +33,8 @@ class Frame:
         # write 24 bits of payload length
         length = len(payload)
         encoded_length = encode_unsigned_integer(length, self.__length_length)
-        self.__verbose('create a frame: write a length ({0:d}): {1:s}'.format(length, helper.bytes2hex(encoded_length)))
+        self.__verbose('create a frame: write a length ({0:d}): {1:s}'
+                       .format(length, helper.bytes2hex(encoded_length)))
         data.extend(encoded_length)
 
         # write a frame type (8 bits)
@@ -54,3 +56,29 @@ class Frame:
     def __verbose(self, *messages):
         helper.verbose_with_prefix(
             Frame.__name__, messages[0])
+
+class DumbCommonFrameFuzzer:
+
+    __default_frame_type = 0x0          # default is DATA frame
+    __default_payload_length = 4096     # default length of payload
+
+    def __init__(self, frame_bytes = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0, ignored_bytes = ()):
+        if frame_bytes is None:
+            payload = bytearray(DumbCommonFrameFuzzer.__default_payload_length)
+            self.__frame_bytes = Frame(DumbCommonFrameFuzzer.__default_frame_type).encode(payload)
+        else:
+            self.__frame_bytes = frame_bytes
+        self.__dumb_byte_array_fuzzer = DumbByteArrayFuzzer(
+            self.__frame_bytes, seed, min_ratio, max_ratio, start_test, ignored_bytes)
+
+    def next(self):
+        self.__info('generate a frame')
+        return self.__dumb_byte_array_fuzzer.next()
+
+    def reset(self):
+        self.__dumb_byte_array_fuzzer.reset()
+
+    def __info(self, *messages):
+        helper.print_with_indent(
+            DumbCommonFrameFuzzer.__name__, messages[0], messages[1:])

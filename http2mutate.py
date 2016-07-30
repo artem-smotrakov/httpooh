@@ -35,7 +35,16 @@ parser.add_argument('--test',
 parser.add_argument('--ratio',
                     help='fuzzing ratio range, it can be a number, or an interval "start:end"',
                     default='0.05')
+fuzzers_group = parser.add_argument_group('fuzzers', 'enable fuzzers')
+fuzzers_group.add_argument('--common',  action='store_true',
+                           help='enable common frame fuzzer')
+fuzzers_group.add_argument('--settings', action='store_true',
+                           help='enable settings frame fuzzer')
+
 args = parser.parse_args()
+
+if not args.common and not args.settings:
+    raise Exception('No fuzzer enabled')
 
 if args.verbose:
     config.current.verbose = True
@@ -65,5 +74,6 @@ else:
     raise Exception('Could not parse --ratio value, too many colons')
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
-                host, port, False, seed, min_ratio, max_ratio, start_test, end_test)
+                host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
+                args.common, args.settings)
 fuzzer.run()
