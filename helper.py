@@ -28,7 +28,8 @@ def print_with_indent(prefix, first_message, other_messages):
         indent = ' ' * len(formatted_prefix)
         wrapper = textwrap.TextWrapper(
             initial_indent=indent, subsequent_indent=indent, width=70)
-        print(wrapper.fill('\n'.join(other_messages)))
+        for message in other_messages:
+            print(wrapper.fill(message))
 
 def verbose_with_indent(prefix, first_message, other_messages):
     if config.current.verbose:
