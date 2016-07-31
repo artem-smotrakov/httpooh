@@ -20,6 +20,7 @@ import config
 #       11. GOAWAY frame
 #       12. WINDOW_UPDATE frame
 #       13. CONTINUATION frame
+#       14. HPACK fuzzer
 
 
 parser = argparse.ArgumentParser()
@@ -44,7 +45,7 @@ fuzzers_group.add_argument('--headers', action='store_true',
 
 args = parser.parse_args()
 
-if not args.common and not args.settings:
+if not args.common and not args.settings and not args.headers:
     raise Exception('No fuzzer enabled')
 
 if args.verbose:

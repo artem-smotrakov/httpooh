@@ -7,9 +7,11 @@ import connection
 import fuzzer.http2.core
 from fuzzer.http2.core import DumbCommonFrameFuzzer
 from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
-from fuzzer.http2.headers import DumbHeadersFuzzer
+from fuzzer.http2.headers import HeadersFrame, DumbHeadersFuzzer
 
 class DumbHTTP2ClientFuzzer:
+
+    __max_stream_id = 2**31     # 31-bit stream id
 
     def __init__(self, host = "localhost", port = 8080, is_tls = False,
                  seed = 0, min_ratio = 0.01, max_ratio = 0.05,
@@ -64,6 +66,7 @@ class DumbHTTP2ClientFuzzer:
                 # TODO: it can be created once
                 settings = SettingsFrame()
                 self.__client.send(settings.encode())
+                data = self.__client.receive()
 
             try:
                 self.__info('test {0:d}: start'.format(test))
