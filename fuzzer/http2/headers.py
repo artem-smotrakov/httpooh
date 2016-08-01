@@ -101,8 +101,7 @@ class HeadersFrame(Frame):
             HeadersFrame.__name__, messages[0], messages[1:])
 
 # TODO: fuzz HEADER frame flags
-# TODO: add a headers fuzzer which doesn't convert a dict of headers to text,
-#       the fuzzer should be able to skip specified headers
+# TODO: update it to use DumbDictionaryFuzzer
 class DumbHeadersFuzzer:
 
     # TODO: add more headers to fuzz
