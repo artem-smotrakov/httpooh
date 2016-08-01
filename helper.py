@@ -14,22 +14,26 @@ def verbose(*args):
         else:
             verbose_with_indent(args[0], args[1], args[2:])
 
+def print_with_prefix(prefix, message):
+    print('[{0:s}] {1}'.format(prefix, message))
+
 def verbose_with_prefix(prefix, message):
     if config.current.verbose:
-        print('[{0:s}] {1}'.format(prefix, message))
+        print_with_prefix(prefix, message)
 
-def verbose_with_indent(prefix, first_message, other_messages):
-    if config.current.verbose:
-        formatted_prefix = '[{0:s}] '.format(prefix)
-        print('{0:s}{1}'.format(formatted_prefix, first_message))
+def print_with_indent(prefix, first_message, other_messages):
+    formatted_prefix = '[{0:s}] '.format(prefix)
+    print('{0:s}{1}'.format(formatted_prefix, first_message))
+    if len(other_messages) > 0:
         indent = ' ' * len(formatted_prefix)
         wrapper = textwrap.TextWrapper(
             initial_indent=indent, subsequent_indent=indent, width=70)
-        print(wrapper.fill('\n'.join(other_messages)))
+        for message in other_messages:
+            print(wrapper.fill(message))
 
-def verbose_dump(classname, message, data):
-    hex_data = bytes2hex(data)
-    verbose(classname, "{0:s}:\n{1:s}".format(message, hex_data))
+def verbose_with_indent(prefix, first_message, other_messages):
+    if config.current.verbose:
+        print_with_indent(prefix, first_message, other_messages)
 
 def bytes2hex(data):
     return ' '.join('{:02x}'.format(b) for b in data)
