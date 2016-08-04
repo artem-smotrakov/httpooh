@@ -69,12 +69,9 @@ class DumbAsciiStringFuzzer:
 class DumbDictionaryFuzzer:
 
     def __init__(self, dictionary, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
-                 start_test = 0, ignored_keys = (), ignored_symbols = ()):
+                 start_test = 0, ignored_symbols = (), ignored_keys = ()):
         self.__start_test = start_test
-        self.__data = data
         self.__seed = seed
-        self.__min_bytes = round(min_ratio * len(data));
-        self.__max_bytes = round(max_ratio * len(data));
         self.__dictionary = dictionary
         self.__ignored_keys = ignored_keys
         self.__ignored_symbols = ignored_symbols
@@ -82,6 +79,9 @@ class DumbDictionaryFuzzer:
         self.__total_length = 0
         for key in self.__dictionary:
             self.__total_length = self.__total_length + len(key) + len(self.__dictionary[key])
+
+        self.__min_bytes = round(min_ratio * self.__total_length);
+        self.__max_bytes = round(max_ratio * self.__total_length);
 
         self.reset()
 
@@ -133,6 +133,9 @@ class DumbDictionaryFuzzer:
                 finally:
                     pos = pos - len(value)
 
+                if pos < 0:
+                    break
+
             i += 1
 
         self.__test += 1
@@ -145,7 +148,7 @@ class DumbDictionaryFuzzer:
         return symbol in self.__ignored_symbols
 
     def __fuzz_string(self, string, pos):
-        if self.isignored(string[pos]):
+        if self.__is_ignored_symbol(string[pos]):
             return string
         fuzzed = bytearray(string, 'ascii', 'ignore')
         b = self.__random_byte.randint(0, 255)
