@@ -102,9 +102,9 @@ class HeadersFrame(Frame):
             HeadersFrame.__name__, messages[0], messages[1:])
 
 # TODO: fuzz HEADER frame flags
+# TODO: don't send all headers, but select them randomly
 class DumbHeadersFuzzer:
 
-    # TODO: add more headers to fuzz
     __default_request_headers = {
             ':scheme'                : 'http',
             ':method'                : 'GET',
@@ -184,3 +184,23 @@ class DumbHeadersFuzzer:
     def __verbose(self, *messages):
         helper.verbose_with_indent(
             DumbHeadersFuzzer.__name__, messages[0], messages[1:])
+
+class DumbHPackFuzzer:
+
+    def __init__(self, headers = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 start_test = 0):
+        raise Exception('Not implemented yet')
+
+    def next(self):
+        raise Exception('Not implemented yet')
+
+    def reset(self):
+        raise Exception('Not implemented yet')
+
+    def __info(self, *messages):
+        helper.print_with_indent(
+            DumbHPackFuzzer.__name__, messages[0], messages[1:])
+
+    def __verbose(self, *messages):
+        helper.verbose_with_indent(
+            DumbHPackFuzzer.__name__, messages[0], messages[1:])

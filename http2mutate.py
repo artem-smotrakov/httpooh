@@ -42,10 +42,12 @@ fuzzers_group.add_argument('--settings', action='store_true',
                            help='enable settings frame fuzzer')
 fuzzers_group.add_argument('--headers', action='store_true',
                            help='enable headers frame fuzzer')
+fuzzers_group.add_argument('--hpack', action='store_true',
+                           help='enable HPACK fuzzer')
 
 args = parser.parse_args()
 
-if not args.common and not args.settings and not args.headers:
+if not args.common and not args.settings and not args.headers and not args.hpack:
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -84,5 +86,5 @@ else:
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
-                args.common, args.settings, args.headers)
+                args.common, args.settings, args.headers, args.hpack)
 fuzzer.run()
