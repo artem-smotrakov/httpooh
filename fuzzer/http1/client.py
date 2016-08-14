@@ -11,8 +11,12 @@ from fuzzer.core import DumbAsciiStringFuzzer
 # TODO: add 'HTTP1 request line only fuzzer'
 class DumbHTTP1RequestFuzzer:
 
-    def __init__(self, host, port, request, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, host, port, request, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, end_test = 0, ignored_symbols = ('\r', '\n')):
+
+        if (seed == 0):
+            raise Exception('Seed cannot be zero')
+        
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port

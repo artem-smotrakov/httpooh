@@ -9,16 +9,25 @@ from fuzzer.http2.core import DumbCommonFrameFuzzer
 from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 from fuzzer.http2.headers import HeadersFrame, DumbHeadersFuzzer, DumbHPackFuzzer
 from fuzzer.http2.priority import PriorityFrame, DumbPriorityFuzzer
+from fuzzer.http2.rst_stream import DumbRstStreamFuzzer
 
+# TODO: it might be better to use different stream ids
+#       because some of them can't be re-used in some cases (see the spec),
+#       for example if RST_STREAM frame was received
 class DumbHTTP2ClientFuzzer:
 
     __max_stream_id = 2**31     # 31-bit stream id
 
     def __init__(self, host = "localhost", port = 8080, is_tls = False,
-                 seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+                 seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, end_test = 0,
                  common_fuzzer = True, settings_fuzzer = True,
-                 headers_fuzzer = True, hpack_fuzzer = True, priority_fuzzer = True):
+                 headers_fuzzer = True, hpack_fuzzer = True, priority_fuzzer = True,
+                 rst_stream_fuzzer = True):
+
+        if (seed == 0):
+            raise Exception('Seed cannot be zero')
+
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
@@ -45,6 +54,8 @@ class DumbHTTP2ClientFuzzer:
         if priority_fuzzer:
             self.__fuzzers.append(
                 DumbPriorityFuzzer(None, seed, min_ratio, max_ratio, start_test))
+        if rst_stream_fuzzer:
+            self.__fuzzers.append(DumbRstStreamFuzzer(seed, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
@@ -64,6 +75,7 @@ class DumbHTTP2ClientFuzzer:
         self.__info('started, test range {0}:{1}'
                     .format(self.__start_test, self.__end_test))
         test = self.__start_test
+        successfully_sent = True
         while (test <= self.__end_test):
             if self.__client.isconnected() is False:
                 self.__client.connect()
@@ -78,7 +90,11 @@ class DumbHTTP2ClientFuzzer:
 
             try:
                 self.__info('test {0:d}: start'.format(test))
-                self.__client.send(self.next())
+                if successfully_sent:
+                    fuzzed_data = self.next()
+                    successfully_sent = False
+                self.__client.send(fuzzed_data)
+                successfully_sent = True
             except socket.error as msg:
                 # move on to next test only if current one was successfully sent out
                 # TODO: delay?

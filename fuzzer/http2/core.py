@@ -62,7 +62,7 @@ class DumbCommonFrameFuzzer:
     __default_frame_type = 0x0          # default is DATA frame
     __default_payload_length = 4096     # default length of payload
 
-    def __init__(self, frame_bytes = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, frame_bytes = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
         if frame_bytes is None:
             payload = bytearray(DumbCommonFrameFuzzer.__default_payload_length)

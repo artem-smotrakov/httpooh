@@ -5,7 +5,7 @@ import helper
 
 class DumbByteArrayFuzzer:
 
-    def __init__(self, data, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, data, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
         # TODO: check if parameters are valid
         self.__start_test = start_test
@@ -53,7 +53,7 @@ class DumbByteArrayFuzzer:
 
 class DumbAsciiStringFuzzer:
 
-    def __init__(self, string, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, string, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = ()):
         self.__data = bytearray(string, 'ascii', 'ignore')
         self.__ignored_bytes = ignored_symbols
@@ -68,7 +68,7 @@ class DumbAsciiStringFuzzer:
 
 class DumbDictionaryFuzzer:
 
-    def __init__(self, dictionary, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, dictionary, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (), ignored_keys = ()):
         self.__start_test = start_test
         self.__seed = seed
@@ -88,14 +88,14 @@ class DumbDictionaryFuzzer:
     def reset(self):
         self.__test = self.__start_test
         self.__random = random.Random()
-        self.__random.seed(self.__seed)
         self.__random_n = random.Random()
         self.__random_position = random.Random()
         self.__random_byte = random.Random()
 
     def next(self):
         fuzzed = self.__dictionary.copy()
-        seed = self.__random.random() + self.__test
+        self.__random.seed(self.__seed * self.__test)
+        seed = self.__random.random()
         if self.__min_bytes == self.__max_bytes:
             n = self.__min_bytes
         else:
@@ -121,6 +121,8 @@ class DumbDictionaryFuzzer:
                         break
                 finally:
                     pos = pos - len(key)
+                    if pos < 0:
+                        break
 
                 value = fuzzed[key]
                 try:
@@ -132,9 +134,8 @@ class DumbDictionaryFuzzer:
                         break
                 finally:
                     pos = pos - len(value)
-
-                if pos < 0:
-                    break
+                    if pos < 0:
+                        break
 
             i += 1
 

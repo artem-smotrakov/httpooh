@@ -10,18 +10,20 @@ import config
 #                                HTTP2-Settings header which contains Settings frame)
 #       2. Connection preface (not sure)
 #       3. Frames: length, type, flags, stream identifier, payload (random payload)
-#       4. Settings frame (randomly mutate a valid frame) (done, see DumbSettingsFuzzer)
+#                               (done, see DumbCommonFrameFuzzer)
+#       4. Settings frame       (done, see DumbSettingsFuzzer)
 #       5. DATA frame
-#       6. HEADERS frame (done, see DumbHeadersFuzzer)
-#       7. PRIORITY frame
-#       8. RST_STREAM frame
+#       6. HEADERS frame        (done, see DumbHeadersFuzzer)
+#       7. PRIORITY frame       (done, see DumbPriorityFuzzer)
+#       8. RST_STREAM frame     (done, see DumbRstStreamFuzzer)
 #       9. PUSH_PROMISE frame
 #       10. PING frame
 #       11. GOAWAY frame
 #       12. WINDOW_UPDATE frame
 #       13. CONTINUATION frame
-#       14. HPACK fuzzer
-
+#       14. HPACK fuzzer        (done, see DumbHPackFuzzer)
+#
+# TODO: take into accoung stream states and flow control
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true',
@@ -29,7 +31,7 @@ parser.add_argument('--verbose', help='more logs', action='store_true',
 parser.add_argument('--port', help='port number', type=int, default=80)
 parser.add_argument('--host', help='host name', default='localhost')
 parser.add_argument('--seed', help='seed for pseudo-random generator', type=int,
-                    default=0)
+                    default=1)
 parser.add_argument('--test',
                     help='test range, it can be a number, or an interval "start:end"')
 parser.add_argument('--ratio',
@@ -46,11 +48,13 @@ fuzzers_group.add_argument('--hpack', action='store_true',
                            help='enable HPACK fuzzer')
 fuzzers_group.add_argument('--priority', action='store_true',
                            help='enable priority fuzzer')
+fuzzers_group.add_argument('--rst_stream', action='store_true',
+                           help='enable RST_STREAM fuzzer')
 
 args = parser.parse_args()
 
 if (not args.common and not args.settings and not args.headers and not args.hpack
-        and not args.priority):
+        and not args.priority and not args.rst_stream):
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -89,5 +93,6 @@ else:
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
-                args.common, args.settings, args.headers, args.hpack, args.priority)
+                args.common, args.settings, args.headers, args.hpack, args.priority,
+                args.rst_stream)
 fuzzer.run()

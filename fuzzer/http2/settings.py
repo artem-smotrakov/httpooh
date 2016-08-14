@@ -68,7 +68,7 @@ class SettingsFrame(Frame):
 
 class DumbSettingsFuzzer:
 
-    def __init__(self, payload = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, payload = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
         if payload is None:
             self.__payload = SettingsFrame().payload()  # default settings
