@@ -112,8 +112,6 @@ class DumbDictionaryFuzzer:
                     if pos < len(key):
                         if self.__is_ignored_key(key):
                             continue
-                        print('key = ' + key)
-                        print('pos = {0}'.format(pos))
                         if self.__is_ignored_symbol(key[pos]):
                             continue
                         fuzzed_key = self.__fuzz_string(key, pos)
