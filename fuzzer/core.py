@@ -112,6 +112,8 @@ class DumbDictionaryFuzzer:
                     if pos < len(key):
                         if self.__is_ignored_key(key):
                             continue
+                        print('key = ' + key)
+                        print('pos = {0}'.format(pos))
                         if self.__is_ignored_symbol(key[pos]):
                             continue
                         fuzzed_key = self.__fuzz_string(key, pos)
@@ -121,6 +123,8 @@ class DumbDictionaryFuzzer:
                         break
                 finally:
                     pos = pos - len(key)
+                    if pos < 0:
+                        break
 
                 value = fuzzed[key]
                 try:
@@ -132,9 +136,8 @@ class DumbDictionaryFuzzer:
                         break
                 finally:
                     pos = pos - len(value)
-
-                if pos < 0:
-                    break
+                    if pos < 0:
+                        break
 
             i += 1
 
