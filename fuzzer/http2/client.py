@@ -75,6 +75,7 @@ class DumbHTTP2ClientFuzzer:
         self.__info('started, test range {0}:{1}'
                     .format(self.__start_test, self.__end_test))
         test = self.__start_test
+        successfully_sent = True
         while (test <= self.__end_test):
             if self.__client.isconnected() is False:
                 self.__client.connect()
@@ -89,7 +90,11 @@ class DumbHTTP2ClientFuzzer:
 
             try:
                 self.__info('test {0:d}: start'.format(test))
-                self.__client.send(self.next())
+                if successfully_sent:
+                    fuzzed_data = self.next()
+                    successfully_sent = False
+                self.__client.send(fuzzed_data)
+                successfully_sent = True
             except socket.error as msg:
                 # move on to next test only if current one was successfully sent out
                 # TODO: delay?
