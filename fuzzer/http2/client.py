@@ -8,6 +8,7 @@ import fuzzer.http2.core
 from fuzzer.http2.core import DumbCommonFrameFuzzer
 from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 from fuzzer.http2.headers import HeadersFrame, DumbHeadersFuzzer, DumbHPackFuzzer
+from fuzzer.http2.priority import PriorityFrame, DumbPriorityFuzzer
 
 class DumbHTTP2ClientFuzzer:
 
@@ -17,7 +18,7 @@ class DumbHTTP2ClientFuzzer:
                  seed = 0, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, end_test = 0,
                  common_fuzzer = True, settings_fuzzer = True,
-                 headers_fuzzer = True, hpack_fuzzer = True):
+                 headers_fuzzer = True, hpack_fuzzer = True, priority_fuzzer = True):
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
@@ -41,6 +42,9 @@ class DumbHTTP2ClientFuzzer:
         if hpack_fuzzer:
             self.__fuzzers.append(
                 DumbHPackFuzzer(None, seed, min_ratio, max_ratio, start_test))
+        if priority_fuzzer:
+            self.__fuzzers.append(
+                DumbPriorityFuzzer(None, seed, min_ratio, max_ratio, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
