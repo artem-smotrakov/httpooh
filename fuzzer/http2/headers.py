@@ -156,7 +156,7 @@ class HeadersFrame(Frame):
 # TODO: don't send all headers, but select them randomly
 class DumbHeadersFuzzer:
 
-    def __init__(self, headers = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (),
                  ignored_header_names = ('accept', ':scheme', ':method', ':path')):
         if headers is None:
@@ -188,7 +188,7 @@ class DumbHeadersFuzzer:
 
 class DumbHPackFuzzer:
 
-    def __init__(self, headers_frame = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, headers_frame = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0):
 
         self.__stream_id = 0x1

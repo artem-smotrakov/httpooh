@@ -65,7 +65,7 @@ class DumbPriorityFuzzer:
 
     __default_stream_id = 0x1
 
-    def __init__(self, priority_frame = None, seed = 0, min_ratio = 0.01, max_ratio = 0.05,
+    def __init__(self, priority_frame = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
 
         self.__stream_id = DumbPriorityFuzzer.__default_stream_id
