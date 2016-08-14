@@ -94,7 +94,7 @@ class DumbDictionaryFuzzer:
 
     def next(self):
         fuzzed = self.__dictionary.copy()
-        self.__random.random.seed(self.__seed * self.__test)
+        self.__random.seed(self.__seed * self.__test)
         seed = self.__random.random()
         if self.__min_bytes == self.__max_bytes:
             n = self.__min_bytes
