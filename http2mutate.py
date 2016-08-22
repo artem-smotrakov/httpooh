@@ -50,11 +50,13 @@ fuzzers_group.add_argument('--priority', action='store_true',
                            help='enable priority fuzzer')
 fuzzers_group.add_argument('--rst_stream', action='store_true',
                            help='enable RST_STREAM fuzzer')
+fuzzers_group.add_argument('--data', action='store_true',
+                           help='enable data fuzzer')
 
 args = parser.parse_args()
 
 if (not args.common and not args.settings and not args.headers and not args.hpack
-        and not args.priority and not args.rst_stream):
+        and not args.priority and not args.rst_stream and not args.data):
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -94,5 +96,5 @@ else:
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
                 args.common, args.settings, args.headers, args.hpack, args.priority,
-                args.rst_stream)
+                args.rst_stream, args.data)
 fuzzer.run()

@@ -10,6 +10,7 @@ from fuzzer.http2.settings import SettingsFrame, DumbSettingsFuzzer
 from fuzzer.http2.headers import HeadersFrame, DumbHeadersFuzzer, DumbHPackFuzzer
 from fuzzer.http2.priority import PriorityFrame, DumbPriorityFuzzer
 from fuzzer.http2.rst_stream import DumbRstStreamFuzzer
+from fuzzer.http2.data import DumbDataFuzzer
 
 # TODO: it might be better to use different stream ids
 #       because some of them can't be re-used in some cases (see the spec),
@@ -23,7 +24,7 @@ class DumbHTTP2ClientFuzzer:
                  start_test = 0, end_test = 0,
                  common_fuzzer = True, settings_fuzzer = True,
                  headers_fuzzer = True, hpack_fuzzer = True, priority_fuzzer = True,
-                 rst_stream_fuzzer = True):
+                 rst_stream_fuzzer = True, data_fuzzer = True):
 
         if (seed == 0):
             raise Exception('Seed cannot be zero')
@@ -54,6 +55,9 @@ class DumbHTTP2ClientFuzzer:
         if priority_fuzzer:
             self.__fuzzers.append(
                 DumbPriorityFuzzer(None, seed, min_ratio, max_ratio, start_test))
+        if data_fuzzer:
+            self.__fuzzers.append(
+                DumbDataFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if rst_stream_fuzzer:
             self.__fuzzers.append(DumbRstStreamFuzzer(seed, start_test))
 
