@@ -12,7 +12,7 @@ import config
 #       3. Frames: length, type, flags, stream identifier, payload (random payload)
 #                               (done, see DumbCommonFrameFuzzer)
 #       4. Settings frame       (done, see DumbSettingsFuzzer)
-#       5. DATA frame
+#       5. DATA frame           (done, see DumbDataFuzzer)
 #       6. HEADERS frame        (done, see DumbHeadersFuzzer)
 #       7. PRIORITY frame       (done, see DumbPriorityFuzzer)
 #       8. RST_STREAM frame     (done, see DumbRstStreamFuzzer)
@@ -24,6 +24,8 @@ import config
 #       14. HPACK fuzzer        (done, see DumbHPackFuzzer)
 #
 # TODO: take into accoung stream states and flow control
+# TODO: fuzzer for clients (browsers)
+# TODO: support TLS
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true',
