@@ -12,6 +12,56 @@ from fuzzer.http2.priority import PriorityFrame, DumbPriorityFuzzer
 from fuzzer.http2.rst_stream import DumbRstStreamFuzzer
 from fuzzer.http2.data import DumbDataFuzzer
 
+default_request_headers = {
+        ':scheme'                : 'http',
+        ':method'                : 'GET',
+        ':path'                  : '/index.html',
+        'accept'                 : '*/*',
+        'Accept-Charset'         : 'utf-8',
+        'Accept-Encoding'        : 'gzip, deflate',
+        'Accept-Language'        : 'en-US',
+        'Accept-Datetime'        : 'Thu, 31 May 2007 20:35:00 GMT',
+        'Authorization'          : 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==',
+        'Cache-Control'          : 'no-cache',
+        'Connection'             : 'keep-alive',
+        'Cookie'                 : '$Version=1; Skin=new;',
+        'Content-Length'         : '0',
+        'Content-MD5'            : 'Q2hlY2sgSW50ZWdyaXR5IQ==',
+        'Content-Type'           : 'application/x-www-form-urlencoded',
+        'Date'                   : 'Tue, 15 Nov 1994 08:12:31 GMT',
+        'Forwarded'              : ('for=192.0.2.60;proto=http;' +
+                                    'by=203.0.113.43 ' +
+                                    'Forwarded: for=192.0.2.43, for=198.51.100.17'),
+        'From'                   : 'user@example.com',
+        'If-Match'               : '"737060cd8c284d8af7ad3082f209582d"',
+        'If-Modified-Since'      : 'Sat, 29 Oct 1994 19:43:31 GMT',
+        'If-None-Match'          : '"737060cd8c284d8af7ad3082f209582d"',
+        'If-Range'               : '"737060cd8c284d8af7ad3082f209582d"',
+        'If-Unmodified-Since'    : 'Sat, 29 Oct 1994 19:43:31 GMT',
+        'Max-Forwards'           : '10',
+        'Origin'                 : 'http://www.example-social-network.com',
+        'Pragma'                 : 'no-cache',
+        'Proxy-Authorization'    : 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==',
+        'Range'                  : 'bytes=500-999',
+        'Referer'                : 'http://en.wikipedia.org/wiki/Main_Page',
+        'TE'                     : 'trailers, deflate',
+        'User-Agent'             : ('Mozilla/5.0 (X11; Linux x86_64; rv:12.0)' +
+                                    ' Gecko/20100101 Firefox/21.0'),
+        'Via'                    : '1.0 fred, 1.1 example.com (Apache/1.1)',
+        'Warning'                : '199 Miscellaneous warning',
+        'X-Requested-With'       : 'XMLHttpRequest',
+        'DNT'                    : '1 (Do Not Track Enabled)',
+        'X-Forwarded-For'        : 'client1, proxy1, proxy2',
+        'X-Forwarded-Host'       : 'en.wikipedia.org:8080',
+        'X-Forwarded-Proto'      : 'http',
+        'Front-End-Https'        : 'off',
+        'X-HTTP-Method-Override' : 'DELETE',
+        'X-Att-Deviceid'         : 'GT-P7320/P7320XXLPG',
+        'x-wap-profile'          : 'http://wap.samsungmobile.com/uaprof/SGH-I777.xml',
+        'Proxy-Connection'       : 'keep-alive',
+        'X-Csrf-Token'           : 'i8XNjC4b8KVok4uw5RftR38Wgp2BFwql'
+    }
+
 # TODO: it might be better to use different stream ids
 #       because some of them can't be re-used in some cases (see the spec),
 #       for example if RST_STREAM frame was received
@@ -48,10 +98,13 @@ class DumbHTTP2ClientFuzzer:
                 DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if headers_fuzzer:
             self.__fuzzers.append(
-                DumbHeadersFuzzer(None, seed, min_ratio, max_ratio, start_test))
+                DumbHeadersFuzzer(
+                    default_request_headers, seed, min_ratio, max_ratio, start_test))
         if hpack_fuzzer:
+            # TODO: should it use different stream ids?
+            headers_frame = HeadersFrame(0x1, default_request_headers)
             self.__fuzzers.append(
-                DumbHPackFuzzer(None, seed, min_ratio, max_ratio, start_test))
+                DumbHPackFuzzer(headers_frame, seed, min_ratio, max_ratio, start_test))
         if priority_fuzzer:
             self.__fuzzers.append(
                 DumbPriorityFuzzer(None, seed, min_ratio, max_ratio, start_test))
