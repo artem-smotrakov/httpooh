@@ -56,11 +56,14 @@ fuzzers_group.add_argument('--data', action='store_true',
                            help='enable data fuzzer')
 fuzzers_group.add_argument('--push_promise', action='store_true',
                            help='enable push promise fuzzer')
+fuzzers_group.add_argument('--ping', action='store_true',
+                           help='enable ping fuzzer')
 
 args = parser.parse_args()
 
 if (not args.common and not args.settings and not args.headers and not args.hpack
-        and not args.priority and not args.rst_stream and not args.data and not args.push_promise):
+        and not args.priority and not args.rst_stream and not args.data
+        and not args.push_promise and not args.ping):
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -100,5 +103,5 @@ else:
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
                 args.common, args.settings, args.headers, args.hpack, args.priority,
-                args.rst_stream, args.data, args.push_promise)
+                args.rst_stream, args.data, args.push_promise, args.ping)
 fuzzer.run()
