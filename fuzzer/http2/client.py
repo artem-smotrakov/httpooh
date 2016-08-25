@@ -13,6 +13,7 @@ from fuzzer.http2.rst_stream import DumbRstStreamFuzzer
 from fuzzer.http2.data import DumbDataFuzzer
 from fuzzer.http2.push_promise import DumbPushPromiseFuzzer
 from fuzzer.http2.ping import DumbPingFuzzer
+from fuzzer.http2.goaway import DumbGoAwayFuzzer
 
 default_request_headers = {
         ':scheme'                : 'http',
@@ -77,7 +78,8 @@ class DumbHTTP2ClientFuzzer:
                  common_fuzzer = True, settings_fuzzer = True,
                  headers_fuzzer = True, hpack_fuzzer = True,
                  priority_fuzzer = True, rst_stream_fuzzer = True,
-                 data_fuzzer = True, push_promise_fuzzer = True, ping_fuzzer = True):
+                 data_fuzzer = True, push_promise_fuzzer = True,
+                 ping_fuzzer = True, goaway_fuzzer = True):
 
         if (seed == 0):
             raise Exception('Seed cannot be zero')
@@ -123,6 +125,9 @@ class DumbHTTP2ClientFuzzer:
         if ping_fuzzer:
             self.__fuzzers.append(
                 DumbPingFuzzer(seed, min_ratio, max_ratio, start_test))
+        if goaway_fuzzer:
+            self.__fuzzers.append(DumbGoAwayFuzzer(
+                seed, min_ratio, max_ratio, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
