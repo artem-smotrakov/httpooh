@@ -93,6 +93,7 @@ class PushPromiseFrame(Frame):
 # TODO: don't send all headers, but select them randomly
 # TODO: fuzz promised stream ids
 # TODO: fuzz padding
+# TODO: send fuzzed CONTINUATION frames
 class DumbPushPromiseFuzzer:
 
     def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,

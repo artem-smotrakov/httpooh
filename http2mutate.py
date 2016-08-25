@@ -5,24 +5,6 @@ import fuzzer.http2
 import argparse
 import config
 
-# TODO: What can we fuzz?
-#       1. HTTP Upgrade request: request line, Host header, Connection header, Upgrade header,
-#                                HTTP2-Settings header which contains Settings frame)
-#       2. Connection preface (not sure)
-#       3. Frames: length, type, flags, stream identifier, payload (random payload)
-#                               (done, see DumbCommonFrameFuzzer)
-#       4. Settings frame       (done, see DumbSettingsFuzzer)
-#       5. DATA frame           (done, see DumbDataFuzzer)
-#       6. HEADERS frame        (done, see DumbHeadersFuzzer)
-#       7. PRIORITY frame       (done, see DumbPriorityFuzzer)
-#       8. RST_STREAM frame     (done, see DumbRstStreamFuzzer)
-#       9. PUSH_PROMISE frame
-#       10. PING frame
-#       11. GOAWAY frame
-#       12. WINDOW_UPDATE frame
-#       13. CONTINUATION frame
-#       14. HPACK fuzzer        (done, see DumbHPackFuzzer)
-#
 # TODO: take into accoung stream states and flow control
 # TODO: fuzzer for clients (browsers)
 # TODO: support TLS

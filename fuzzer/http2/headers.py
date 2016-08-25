@@ -103,6 +103,7 @@ class HeadersFrame(Frame):
 
 # TODO: fuzz HEADER frame flags
 # TODO: don't send all headers, but select them randomly
+# TODO: send fuzzed CONTINUATION frames
 class DumbHeadersFuzzer:
 
     def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
