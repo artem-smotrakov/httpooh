@@ -5,25 +5,9 @@ import fuzzer.http2
 import argparse
 import config
 
-# TODO: What can we fuzz?
-#       1. HTTP Upgrade request: request line, Host header, Connection header, Upgrade header,
-#                                HTTP2-Settings header which contains Settings frame)
-#       2. Connection preface (not sure)
-#       3. Frames: length, type, flags, stream identifier, payload (random payload)
-#                               (done, see DumbCommonFrameFuzzer)
-#       4. Settings frame       (done, see DumbSettingsFuzzer)
-#       5. DATA frame
-#       6. HEADERS frame        (done, see DumbHeadersFuzzer)
-#       7. PRIORITY frame       (done, see DumbPriorityFuzzer)
-#       8. RST_STREAM frame     (done, see DumbRstStreamFuzzer)
-#       9. PUSH_PROMISE frame
-#       10. PING frame
-#       11. GOAWAY frame
-#       12. WINDOW_UPDATE frame
-#       13. CONTINUATION frame
-#       14. HPACK fuzzer        (done, see DumbHPackFuzzer)
-#
 # TODO: take into accoung stream states and flow control
+# TODO: fuzzer for clients (browsers)
+# TODO: support TLS
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true',
@@ -50,11 +34,25 @@ fuzzers_group.add_argument('--priority', action='store_true',
                            help='enable priority fuzzer')
 fuzzers_group.add_argument('--rst_stream', action='store_true',
                            help='enable RST_STREAM fuzzer')
+fuzzers_group.add_argument('--data', action='store_true',
+                           help='enable data fuzzer')
+fuzzers_group.add_argument('--push_promise', action='store_true',
+                           help='enable push promise fuzzer')
+fuzzers_group.add_argument('--ping', action='store_true',
+                           help='enable ping fuzzer')
+fuzzers_group.add_argument('--goaway', action='store_true',
+                           help='enable goaway fuzzer')
+fuzzers_group.add_argument('--window_update', action='store_true',
+                           help='enable window update fuzzer')
+fuzzers_group.add_argument('--continuation', action='store_true',
+                           help='enable continuation fuzzer')
 
 args = parser.parse_args()
 
 if (not args.common and not args.settings and not args.headers and not args.hpack
-        and not args.priority and not args.rst_stream):
+        and not args.priority and not args.rst_stream and not args.data
+        and not args.push_promise and not args.ping and not args.goaway
+        and not args.window_update and not args.continuation):
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -94,5 +92,6 @@ else:
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
                 args.common, args.settings, args.headers, args.hpack, args.priority,
-                args.rst_stream)
+                args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
+                args.window_update, args.continuation)
 fuzzer.run()
