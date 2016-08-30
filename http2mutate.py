@@ -47,13 +47,15 @@ fuzzers_group.add_argument('--window_update', action='store_true',
                            help='enable window update fuzzer')
 fuzzers_group.add_argument('--continuation', action='store_true',
                            help='enable continuation fuzzer')
+fuzzers_group.add_argument('--all', action='store_true',
+                           help='enable all available fuzzers')
 
 args = parser.parse_args()
 
 if (not args.common and not args.settings and not args.headers and not args.hpack
         and not args.priority and not args.rst_stream and not args.data
         and not args.push_promise and not args.ping and not args.goaway
-        and not args.window_update and not args.continuation):
+        and not args.window_update and not args.continuation and not args.all):
     raise Exception('No fuzzer enabled')
 
 if args.verbose:
@@ -90,9 +92,14 @@ elif len(parts) == 2:
 else:
     raise Exception('Could not parse --ratio value, too many colons')
 
-fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+if args.all:
+    fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+                host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+else:
+    fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
                 host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
                 args.common, args.settings, args.headers, args.hpack, args.priority,
                 args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
                 args.window_update, args.continuation)
+
 fuzzer.run()
