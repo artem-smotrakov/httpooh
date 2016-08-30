@@ -7,7 +7,6 @@ import config
 
 # TODO: take into accoung stream states and flow control
 # TODO: fuzzer for clients (browsers)
-# TODO: support TLS
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true',
@@ -21,6 +20,8 @@ parser.add_argument('--test',
 parser.add_argument('--ratio',
                     help='fuzzing ratio range, it can be a number, or an interval "start:end"',
                     default='0.05')
+parser.add_argument('--tls', action='store_true',
+                    help='enable TLS')
 fuzzers_group = parser.add_argument_group('fuzzers', 'enable fuzzers')
 fuzzers_group.add_argument('--common',  action='store_true',
                            help='enable common frame fuzzer')
@@ -90,7 +91,7 @@ else:
     raise Exception('Could not parse --ratio value, too many colons')
 
 fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
-                host, port, False, seed, min_ratio, max_ratio, start_test, end_test,
+                host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
                 args.common, args.settings, args.headers, args.hpack, args.priority,
                 args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
                 args.window_update, args.continuation)

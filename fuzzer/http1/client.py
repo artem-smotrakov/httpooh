@@ -37,7 +37,7 @@ class DumbHTTP1RequestFuzzer:
                   .format(self.__start_test, self.__end_test))
         while (test <= self.__end_test):
             self.__info('test {0:d}: send'.format(test))
-            client = connection.TCPClient(self.__host, self.__port)
+            client = connection.Client(self.__host, self.__port)
             try:
                 client.send(self.next())
                 data = client.receive()
