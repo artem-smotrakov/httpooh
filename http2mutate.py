@@ -19,7 +19,7 @@ parser.add_argument('--test',
                     help='test range, it can be a number, or an interval "start:end"')
 parser.add_argument('--ratio',
                     help='fuzzing ratio range, it can be a number, or an interval "start:end"',
-                    default='0.05')
+                    default='0.01:0.05')
 parser.add_argument('--tls', action='store_true',
                     help='enable TLS')
 fuzzers_group = parser.add_argument_group('fuzzers', 'enable fuzzers')

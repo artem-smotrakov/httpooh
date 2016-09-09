@@ -11,8 +11,10 @@ class DumbByteArrayFuzzer:
         self.__start_test = start_test
         self.__data = data
         self.__seed = seed
-        self.__min_bytes = round(min_ratio * len(data));
-        self.__max_bytes = round(max_ratio * len(data));
+        self.__min_bytes = int(float(min_ratio) * int(len(data)));
+        self.__max_bytes = int(float(max_ratio) * int(len(data)));
+        self.__verbose('min bytes to change: {0:d}'.format(self.__min_bytes))
+        self.__verbose('max bytes to change: {0:d}'.format(self.__max_bytes))
         self.__ignored_bytes = ignored_bytes
         self.reset()
 
@@ -80,8 +82,10 @@ class DumbDictionaryFuzzer:
         for key in self.__dictionary:
             self.__total_length = self.__total_length + len(key) + len(self.__dictionary[key])
 
-        self.__min_bytes = round(min_ratio * self.__total_length);
-        self.__max_bytes = round(max_ratio * self.__total_length);
+        self.__min_bytes = int(float(min_ratio) * int(self.__total_length));
+        self.__max_bytes = int(float(max_ratio) * int(self.__total_length));
+        self.__verbose('min bytes to change: {0:d}'.format(self.__min_bytes))
+        self.__verbose('max bytes to change: {0:d}'.format(self.__max_bytes))
 
         self.reset()
 
@@ -155,3 +159,6 @@ class DumbDictionaryFuzzer:
         b = self.__random_byte.randint(0, 255)
         fuzzed[pos] = b
         return str(fuzzed, 'ascii', 'ignore')
+
+    def __verbose(self, message):
+        helper.verbose(DumbDictionaryFuzzer.__name__, message)
