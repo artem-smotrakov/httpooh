@@ -11,6 +11,7 @@ import config
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true',
                     default=False)
+parser.add_argument('--server', help='start a server', action='store_true')
 parser.add_argument('--port', help='port number', type=int, default=80)
 parser.add_argument('--host', help='host name', default='localhost')
 parser.add_argument('--seed', help='seed for pseudo-random generator', type=int,
@@ -92,14 +93,25 @@ elif len(parts) == 2:
 else:
     raise Exception('Could not parse --ratio value, too many colons')
 
-if args.all:
-    fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
-                host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+if args.server:
+    if args.all:
+        fuzzer = fuzzer.http2.server.DumbHTTP2ServerFuzzer(
+                    port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+    else:
+        fuzzer = fuzzer.http2.server.DumbHTTP2ServerFuzzer(
+                    port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
+                    args.common, args.settings, args.headers, args.hpack, args.priority,
+                    args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
+                    args.window_update, args.continuation)
 else:
-    fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
-                host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
-                args.common, args.settings, args.headers, args.hpack, args.priority,
-                args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
-                args.window_update, args.continuation)
+    if args.all:
+        fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+                    host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+    else:
+        fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+                    host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
+                    args.common, args.settings, args.headers, args.hpack, args.priority,
+                    args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
+                    args.window_update, args.continuation)
 
 fuzzer.run()

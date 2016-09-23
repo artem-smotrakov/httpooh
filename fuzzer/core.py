@@ -18,6 +18,9 @@ class DumbByteArrayFuzzer:
         self.__ignored_bytes = ignored_bytes
         self.reset()
 
+    def set_test(self, test):
+        self.__test = test
+
     def reset(self):
         self.__test = self.__start_test
         self.__random = random.Random()

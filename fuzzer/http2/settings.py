@@ -28,6 +28,10 @@ class SettingsFrame(Frame):
                                                       # the initial value recommended by the spec
         self.__settings_max_header_list_size = 65535  # the spec doesn't difine the initial value
                                                       # for this parameter
+
+    def disable_push(self):
+        self.__settings_enable_push = 0
+
     def payload(self):
         payload = bytearray()
 
@@ -76,6 +80,9 @@ class DumbSettingsFuzzer:
             self.__payload = payload
         self.__dumb_byte_array_fuzzer = DumbByteArrayFuzzer(
             self.__payload, seed, min_ratio, max_ratio, start_test, ignored_bytes)
+
+    def set_test(self, test):
+        self.__dumb_byte_array_fuzzer.set_test(test)
 
     def next(self):
         self.__info('generate a settings frame')

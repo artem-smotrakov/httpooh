@@ -122,3 +122,31 @@ class StubbornTCPClient:
 
     def __verbose(self, message):
         helper.verbose('[{0}] {1}'.format(StubbornTCPClient.__name__, message))
+
+# This is a simple TCP/TLS server which just wraps socket's methods
+class Server:
+
+    def __init__(self, port, handler, is_tls = False):
+        self.__port = port
+        self.__handler = handler
+        self.__is_tls = is_tls
+
+    def start(self):
+        if self.__is_tls:
+            raise Exception('TLS is not supported')
+        else:
+            self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server_socket.bind(('localhost', self.__port))
+        self.__server_socket.listen()
+        self.__verbose('started server on {0:d} port'.format(self.__port))
+        while True:
+            # accept connections from outside
+            (clientsocket, address) = self.__server_socket.accept()
+            self.__verbose('accepted connection')
+            self.__handler.handle(clientsocket)
+
+    def close(self):
+        self.__server_socket.close()
+
+    def __verbose(self, message):
+        helper.verbose('[{0}] {1}'.format(Server.__name__, message))
