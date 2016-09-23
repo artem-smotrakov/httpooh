@@ -28,6 +28,10 @@ class SettingsFrame(Frame):
                                                       # the initial value recommended by the spec
         self.__settings_max_header_list_size = 65535  # the spec doesn't difine the initial value
                                                       # for this parameter
+
+    def disable_push(self):
+        self.__settings_enable_push = 0
+
     def payload(self):
         payload = bytearray()
 
