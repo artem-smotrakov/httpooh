@@ -77,6 +77,9 @@ class DumbSettingsFuzzer:
         self.__dumb_byte_array_fuzzer = DumbByteArrayFuzzer(
             self.__payload, seed, min_ratio, max_ratio, start_test, ignored_bytes)
 
+    def set_test(self, test):
+        self.__dumb_byte_array_fuzzer.set_test(test)
+
     def next(self):
         self.__info('generate a settings frame')
         fuzzed_payload = self.__dumb_byte_array_fuzzer.next()
