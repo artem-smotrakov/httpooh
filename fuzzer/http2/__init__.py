@@ -1,3 +1,3 @@
 #!/usr/bin/python
 
-from fuzzer.http2 import client, core, settings
+from fuzzer.http2 import client, server, core, settings
