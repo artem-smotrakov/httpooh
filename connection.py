@@ -1,22 +1,29 @@
 #!/usr/bin/python
 
 import socket
+import ssl
 import time
 import helper
 
-# TCPClient is a simple TCP client which just wraps socket's methods
+# This is a simple TCP/TLS client which just wraps socket's methods
 # It assumes that a connection is closed if any I/O error occured
-class TCPClient:
+class Client:
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, is_tls = False):
         self.__host = host
         self.__port = port
+        self.__is_tls = is_tls
         self.__connected = False
 
     def connect(self):
         self.__connected = False
         self.__verbose('connect to {0}:{1:d}'.format(self.__host, self.__port))
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if self.__is_tls:
+            self.__context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+            self.__context.set_alpn_protocols(['h2'])
+            self.__socket = self.__context.wrap_socket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        else:
+            self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__socket.connect((self.__host, self.__port))
         self.__connected = True
 
@@ -48,7 +55,7 @@ class TCPClient:
         self.__socket.close()
 
     def __verbose(self, message):
-        helper.verbose('[{0}] {1}'.format(TCPClient.__name__, message))
+        helper.verbose('[{0}] {1}'.format(Client.__name__, message))
 
 # StubbornTCPClient makes multiple attempts to connect and send data
 # if an I/O error occured

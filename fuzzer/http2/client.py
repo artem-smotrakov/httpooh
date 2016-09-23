@@ -149,10 +149,7 @@ class DumbHTTP2ClientFuzzer:
             DumbHTTP2ClientFuzzer.__name__, messages[0], messages[1:])
 
     def run(self):
-        if self.__is_tls is True:
-            raise Exception('TLS connection is not supported yet')
-        else:
-            self.__client = connection.TCPClient(self.__host, self.__port)
+        self.__client = connection.Client(self.__host, self.__port, self.__is_tls)
 
         self.__info('started, test range {0}:{1}'
                     .format(self.__start_test, self.__end_test))
