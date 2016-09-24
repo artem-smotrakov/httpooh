@@ -2,7 +2,6 @@
 
 import helper
 import connection
-from fuzzer.core import DumbAsciiStringFuzzer
 
 # TODO: add comments
 # TODO: create a test which checks that it generates the same requests
@@ -16,7 +15,7 @@ class DumbHTTP1RequestFuzzer:
 
         if (seed == 0):
             raise Exception('Seed cannot be zero')
-        
+
         # TODO: check if parameters are valid
         self.__host = host
         self.__port = port
