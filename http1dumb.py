@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-import helper
 import connection
+import helper
+from helper import DumbAsciiStringFuzzer
 
 # TODO: add comments
 # TODO: create a test which checks that it generates the same requests

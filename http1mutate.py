@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 import sys
-import http1dumb
 import argparse
 import config
+from http1dumb import DumbHTTP1RequestFuzzer
 
 # TODO: add an option to specify a list of symbols to ignore
 
@@ -13,7 +13,7 @@ parser.add_argument('--verbose', help='more logs', action='store_true',
 parser.add_argument('--port', help='port number', type=int, default=80)
 parser.add_argument('--host', help='host name', default='localhost')
 parser.add_argument('--seed', help='seed for pseudo-random generator', type=int,
-                    default=0)
+                    default=1)
 parser.add_argument('--test',
                     help='test range, it can be a number, or an interval "start:end"',
                     default='0')
