@@ -6,7 +6,9 @@ import helper
 import socket
 import connection
 import http2core
-from http2core import Frame, SettingsFrame, HeadersFrame, DataFrame, ContinuationFrame, WindowUpdateFrame, RstStreamFrame, PushPromiseFrame, PingFrame, PriorityFrame, GoAwayFrame
+from http2core import Frame, SettingsFrame, HeadersFrame, DataFrame
+from http2core import ContinuationFrame, WindowUpdateFrame, RstStreamFrame
+from http2core import PushPromiseFrame, PingFrame, PriorityFrame, GoAwayFrame
 from helper import DumbByteArrayFuzzer, DumbDictionaryFuzzer
 
 default_request_headers = {
@@ -97,9 +99,8 @@ class DumbHTTP2ClientFuzzer:
             self.__fuzzers.append(
                 DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if headers_fuzzer:
-            self.__fuzzers.append(
-                DumbHeadersFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbHeadersFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
         if hpack_fuzzer:
             # TODO: should it use different stream ids?
             headers_frame = HeadersFrame(0x1, default_request_headers)
@@ -114,9 +115,8 @@ class DumbHTTP2ClientFuzzer:
         if rst_stream_fuzzer:
             self.__fuzzers.append(DumbRstStreamFuzzer(seed, start_test))
         if push_promise_fuzzer:
-            self.__fuzzers.append(
-                DumbPushPromiseFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbPushPromiseFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
         if ping_fuzzer:
             self.__fuzzers.append(
                 DumbPingFuzzer(seed, min_ratio, max_ratio, start_test))
@@ -127,9 +127,8 @@ class DumbHTTP2ClientFuzzer:
             self.__fuzzers.append(DumbWindowUpdateFuzzer(
                 seed, min_ratio, max_ratio, start_test))
         if continuation_fuzzer:
-            self.__fuzzers.append(
-                DumbContinuationFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbContinuationFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
 
     def next(self):
         fuzzed_data = self.__fuzzers[self.__next_fuzzer].next()
@@ -221,9 +220,8 @@ class DumbHTTP2ServerFuzzer:
             self.__fuzzers.append(
                 DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if headers_fuzzer:
-            self.__fuzzers.append(
-                DumbHeadersFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbHeadersFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
         if hpack_fuzzer:
             # TODO: should it use different stream ids?
             headers_frame = HeadersFrame(0x1, default_request_headers)
@@ -238,9 +236,8 @@ class DumbHTTP2ServerFuzzer:
         if rst_stream_fuzzer:
             self.__fuzzers.append(DumbRstStreamFuzzer(seed, start_test))
         if push_promise_fuzzer:
-            self.__fuzzers.append(
-                DumbPushPromiseFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbPushPromiseFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
         if ping_fuzzer:
             self.__fuzzers.append(
                 DumbPingFuzzer(seed, min_ratio, max_ratio, start_test))
@@ -251,9 +248,8 @@ class DumbHTTP2ServerFuzzer:
             self.__fuzzers.append(DumbWindowUpdateFuzzer(
                 seed, min_ratio, max_ratio, start_test))
         if continuation_fuzzer:
-            self.__fuzzers.append(
-                DumbContinuationFuzzer(
-                    default_request_headers, seed, min_ratio, max_ratio, start_test))
+            self.__fuzzers.append(DumbContinuationFuzzer(
+                default_request_headers, seed, min_ratio, max_ratio, start_test))
 
     def __info(self, *messages):
         helper.print_with_indent(
@@ -295,7 +291,8 @@ class DumbHTTP2ServerFuzzer:
 
             try:
                 data = socket.recv(1024)
-                self.__info('test {0:d}: received data:'.format(self.__test), helper.bytes2hex(data))
+                self.__info('test {0:d}: received data:'
+                            .format(self.__test), helper.bytes2hex(data))
             except OSError as msg:
                 self.__info('test {0:d}: a error occured while receiving data, ignore it: {1}'
                             .format(self.__test, msg))
@@ -421,11 +418,14 @@ class DumbGoAwayFuzzer:
     def next(self, stream_id = 0x0):
         self.__info('generate a goaway frame, stream id = {0:d}'.format(stream_id))
 
-        last_stream_id = self.__random_last_stream_id.randint(0, DumbGoAwayFuzzer.__max_last_stream_id)
-        error_code = self.__random_error_code.randint(0, DumbGoAwayFuzzer.__max_error_code)
+        last_stream_id = self.__random_last_stream_id.randint(
+            0, DumbGoAwayFuzzer.__max_last_stream_id)
+        error_code = self.__random_error_code.randint(
+            0, DumbGoAwayFuzzer.__max_error_code)
 
         debug_data = bytearray()
-        debug_data_length = self.__random_debug_data.randint(0, DumbGoAwayFuzzer.__max_debug_data_length)
+        debug_data_length = self.__random_debug_data.randint(
+            0, DumbGoAwayFuzzer.__max_debug_data_length)
         for i in range(debug_data_length):
             debug_data.append(self.__random_debug_data.randint(0, 255))
 
@@ -664,7 +664,8 @@ class DumbWindowUpdateFuzzer:
         self.__random_window_size_increment.seed(seed * start_test)
 
     def next(self, stream_id = 0x0):
-        self.__info('generate a window update frame, stream id = {0:d}'.format(stream_id))
+        self.__info('generate a window update frame, stream id = {0:d}'
+                    .format(stream_id))
 
         window_size_increment = self.__random_window_size_increment.randint(
             0, DumbWindowUpdateFuzzer.__max_window_size_increment)
