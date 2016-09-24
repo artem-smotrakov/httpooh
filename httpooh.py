@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 import sys
-import fuzzer.http2
 import argparse
 import config
+import http2dumb
 
 # TODO: take into accoung stream states and flow control
 # TODO: fuzzer for clients (browsers)
@@ -95,20 +95,20 @@ else:
 
 if args.server:
     if args.all:
-        fuzzer = fuzzer.http2.server.DumbHTTP2ServerFuzzer(
+        fuzzer = http2dumb.DumbHTTP2ServerFuzzer(
                     port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
     else:
-        fuzzer = fuzzer.http2.server.DumbHTTP2ServerFuzzer(
+        fuzzer = http2dumb.DumbHTTP2ServerFuzzer(
                     port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
                     args.common, args.settings, args.headers, args.hpack, args.priority,
                     args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
                     args.window_update, args.continuation)
 else:
     if args.all:
-        fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+        fuzzer = http2dumb.DumbHTTP2ClientFuzzer(
                     host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
     else:
-        fuzzer = fuzzer.http2.client.DumbHTTP2ClientFuzzer(
+        fuzzer = http2dumb.DumbHTTP2ClientFuzzer(
                     host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
                     args.common, args.settings, args.headers, args.hpack, args.priority,
                     args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,

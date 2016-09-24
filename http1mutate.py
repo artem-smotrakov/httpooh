@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-import fuzzer.http1
+import http1dumb
 import argparse
 import config
 
@@ -56,6 +56,6 @@ if args.request:
 else:
     request = 'GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n'
 
-fuzzer = fuzzer.http1.client.DumbHTTP1RequestFuzzer(
+fuzzer = DumbHTTP1RequestFuzzer(
             host, port, request, seed, min_ratio, max_ratio, start_test, end_test)
 fuzzer.run()
