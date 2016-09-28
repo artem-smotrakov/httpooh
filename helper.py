@@ -45,6 +45,7 @@ class DumbByteArrayFuzzer:
                  start_test = 0, ignored_bytes = ()):
         # TODO: check if parameters are valid
         self.__start_test = start_test
+        self.__test = start_test
         self.__data = data
         self.__seed = seed
         self.__min_bytes = int(float(min_ratio) * int(len(data)));
@@ -101,6 +102,9 @@ class DumbAsciiStringFuzzer:
         self.__byte_array_fuzzer = DumbByteArrayFuzzer(
                 self.__data, seed, min_ratio, max_ratio, start_test, self.__ignored_bytes)
 
+    def set_test(self, test):
+        self.__byte_array_fuzzer.set_test(test)
+
     def reset(self):
         self.__byte_array_fuzzer.reset()
 
@@ -112,6 +116,7 @@ class DumbDictionaryFuzzer:
     def __init__(self, dictionary, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (), ignored_keys = ()):
         self.__start_test = start_test
+        self.__test = start_test
         self.__seed = seed
         self.__dictionary = dictionary
         self.__ignored_keys = ignored_keys
@@ -127,6 +132,9 @@ class DumbDictionaryFuzzer:
         self.__verbose('max bytes to change: {0:d}'.format(self.__max_bytes))
 
         self.reset()
+
+    def set_test(self, test):
+        self.__test = test
 
     def reset(self):
         self.__test = self.__start_test
