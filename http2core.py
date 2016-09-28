@@ -16,44 +16,44 @@ class Frame:
 
     def __init__(self, frame_type, flags = 0, stream_id = 0):
         # constants
-        self.__length_length = 3          # 24 bits
-        self.__type_length = 1            # 8 bits
-        self.__flags_length = 1           # 8 bits
-        self.__stream_id_length = 4 # 32 bits, but the spec defines it
+        self.length_length = 3          # 24 bits
+        self.type_length = 1            # 8 bits
+        self.flags_length = 1           # 8 bits
+        self.stream_id_length = 4 # 32 bits, but the spec defines it
                                           # as an unsigned 31-bit integer,
                                           # and one bit must be set to 0
 
-        self.__frame_type = frame_type
-        self.__flags = flags
-        self.__stream_id = stream_id
+        self.frame_type = frame_type
+        self.flags = flags
+        self.stream_id = stream_id
 
     def encode(self, payload):
         data = bytearray()
 
         # write 24 bits of payload length
         length = len(payload)
-        encoded_length = encode_unsigned_integer(length, self.__length_length)
-        self.__verbose('create a frame: write a length ({0:d}): {1:s}'
+        encoded_length = encode_unsigned_integer(length, self.length_length)
+        self.verbose('create a frame: write a length ({0:d}): {1:s}'
                        .format(length, helper.bytes2hex(encoded_length)))
         data.extend(encoded_length)
 
         # write a frame type (8 bits)
-        data.extend(encode_unsigned_integer(self.__frame_type, self.__type_length))
+        data.extend(encode_unsigned_integer(self.frame_type, self.type_length))
 
         # write flags (8 bits)
-        data.extend(encode_unsigned_integer(self.__flags, self.__flags_length))
+        data.extend(encode_unsigned_integer(self.flags, self.flags_length))
 
         # write a stream id expressed as an unsigned 32-bit integer
         # the spec defines a stream id field at an unsigned 31-bit integer,
         # and 1 bit is reserved and must be set to 0
-        data.extend(encode_unsigned_integer(self.__stream_id, self.__stream_id_length))
+        data.extend(encode_unsigned_integer(self.stream_id, self.stream_id_length))
 
         # write payload
         data.extend(payload)
 
         return data
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_prefix(
             Frame.__name__, messages[0])
 
@@ -78,11 +78,11 @@ class ContinuationFrame(Frame):
         if stream_id <= 0:
             raise Exception('invalid stream id {0:d}'.format(stream_id))
 
-        Frame.__init__(self, ContinuationFrame.frame_type, self.flags(), stream_id)
-        self.__headers = headers
+        Frame.__init__(self, ContinuationFrame.frame_type, self.get_default_flags(), stream_id)
+        self.headers = headers
 
     def encoded_headers(self):
-        return Encoder().encode(self.__headers)
+        return Encoder().encode(self.headers)
 
     def payload(self):
         payload = bytearray()
@@ -91,19 +91,19 @@ class ContinuationFrame(Frame):
         header_block = self.encoded_headers()
         payload.extend(header_block)
 
-        self.__verbose('write a continuation frame:',
+        self.verbose('write a continuation frame:',
                        'header block:          ',
                        helper.bytes2hex(header_block))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return 0x0
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             ContinuationFrame.__name__, messages[0], messages[1:])
 
@@ -132,8 +132,8 @@ class DataFrame(Frame):
         # PROTOCOL_ERROR.
         if stream_id <= 0:
             raise Exception('invalid stream id {0:d}'.format(stream_id))
-        self.__data = data
-        Frame.__init__(self, DataFrame.frame_type, self.flags(), stream_id)
+        self.data = data
+        Frame.__init__(self, DataFrame.frame_type, self.get_default_flags(), stream_id)
 
     def payload(self):
         payload = bytearray()
@@ -144,7 +144,7 @@ class DataFrame(Frame):
         payload.extend(padding_length)
 
         # write data
-        payload.extend(self.__data)
+        payload.extend(self.data)
 
         # write padding
         if DataFrame.__default_padding_length > 0:
@@ -153,22 +153,22 @@ class DataFrame(Frame):
         else:
             padding = bytearray()
 
-        self.__verbose('write a data frame:',
+        self.verbose('write a data frame:',
                        'padding length:    {0}'.format(helper.bytes2hex(padding_length)),
                        'data:              ',
-                       helper.bytes2hex(self.__data),
+                       helper.bytes2hex(self.data),
                        'padding:           ',
                        helper.bytes2hex(padding))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return (DataFrame.__padded_flag | DataFrame.__end_stream_flag)
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             DataFrame.__name__, messages[0], messages[1:])
 
@@ -183,9 +183,9 @@ class GoAwayFrame(Frame):
     __error_code_length = 4
 
     def __init__(self, last_stream_id, error_code, debug_data = bytearray()):
-        self.__last_stream_id = last_stream_id
-        self.__error_code = error_code
-        self.__debug_data = debug_data
+        self.last_stream_id = last_stream_id
+        self.error_code = error_code
+        self.debug_data = debug_data
 
         # according to the spec:
         #
@@ -193,38 +193,38 @@ class GoAwayFrame(Frame):
         # An endpoint MUST treat a GOAWAY frame with a stream identifier other
         # than 0x0 as a connection error (Section 5.4.1) of type
         # PROTOCOL_ERROR.
-        Frame.__init__(self, GoAwayFrame.frame_type, self.flags(), 0x0)
+        Frame.__init__(self, GoAwayFrame.frame_type, self.get_default_flags(), 0x0)
 
     def payload(self):
         payload = bytearray()
 
         # write last stream id
         last_stream_id = encode_unsigned_integer(
-            self.__last_stream_id, GoAwayFrame.__last_stream_id_length)
+            self.last_stream_id, GoAwayFrame.__last_stream_id_length)
         payload.extend(last_stream_id)
 
         # write error code
         error_code = encode_unsigned_integer(
-            self.__error_code, GoAwayFrame.__error_code_length)
+            self.error_code, GoAwayFrame.__error_code_length)
         payload.extend(error_code)
 
-        if len(self.__debug_data) > 0:
-            payload.extend(self.__debug_data)
+        if len(self.debug_data) > 0:
+            payload.extend(self.debug_data)
 
-        self.__verbose('write a goaway frame:',
-                       'last stream id: {0}'.format(self.__last_stream_id),
-                       'error code:     {0}'.format(self.__error_code),
-                       'debug data:     {0}'.format(helper.bytes2hex(self.__debug_data)))
+        self.verbose('write a goaway frame:',
+                       'last stream id: {0}'.format(self.last_stream_id),
+                       'error code:     {0}'.format(self.error_code),
+                       'debug data:     {0}'.format(helper.bytes2hex(self.debug_data)))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return 0x0
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             GoAwayFrame.__name__, messages[0], messages[1:])
 
@@ -259,11 +259,11 @@ class HeadersFrame(Frame):
         # PROTOCOL_ERROR.
         if stream_id <= 0:
             raise Exception('invalid stream id {0:d}'.format(stream_id))
-        Frame.__init__(self, HeadersFrame.frame_type, self.flags(), stream_id)
-        self.__headers = headers
+        Frame.__init__(self, HeadersFrame.frame_type, self.get_default_flags(), stream_id)
+        self.headers = headers
 
     def encoded_headers(self):
-        return Encoder().encode(self.__headers)
+        return Encoder().encode(self.headers)
 
     def payload(self):
         payload = bytearray()
@@ -301,7 +301,7 @@ class HeadersFrame(Frame):
         else:
             padding = bytearray()
 
-        self.__verbose('write a header frame:',
+        self.verbose('write a header frame:',
                        'padding length:    {0}'.format(helper.bytes2hex(padding_length)),
                        'stream dependency: {0}'.format(helper.bytes2hex(stream_dependency)),
                        'weight:            {0}'.format(helper.bytes2hex(weight)),
@@ -312,14 +312,14 @@ class HeadersFrame(Frame):
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return (HeadersFrame.__padded_flag | HeadersFrame.__end_headers_flag |
             HeadersFrame.__priority_flag | HeadersFrame.__end_stream_flag)
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             HeadersFrame.__name__, messages[0], messages[1:])
 
@@ -336,7 +336,7 @@ class PingFrame(Frame):
     __ask_flag = 0x1
 
     def __init__(self, data):
-        self.__data = data
+        self.data = data
 
         # according to the spec:
         #
@@ -344,23 +344,23 @@ class PingFrame(Frame):
         # frame is received with a stream identifier field value other than
         # 0x0, the recipient MUST respond with a connection error
         # (Section 5.4.1) of type PROTOCOL_ERROR.
-        Frame.__init__(self, PingFrame.frame_type, self.flags(), 0x0)
+        Frame.__init__(self, PingFrame.frame_type, self.get_default_flags(), 0x0)
 
     def payload(self):
         payload = bytearray()
-        payload.extend(self.__data)
-        self.__verbose('write a ping frame:',
-                       'data:           {0}'.format(helper.bytes2hex(self.__data)))
+        payload.extend(self.data)
+        self.verbose('write a ping frame:',
+                       'data:           {0}'.format(helper.bytes2hex(self.data)))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return 0x0
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             PingFrame.__name__, messages[0], messages[1:])
 
@@ -387,7 +387,7 @@ class PriorityFrame(Frame):
         # PROTOCOL_ERROR.
         if stream_id <= 0:
             raise Exception('invalid stream id {0:d}'.format(stream_id))
-        Frame.__init__(self, PriorityFrame.frame_type, self.flags(), stream_id)
+        Frame.__init__(self, PriorityFrame.frame_type, self.get_default_flags(), stream_id)
 
     def payload(self):
         payload = bytearray()
@@ -402,20 +402,20 @@ class PriorityFrame(Frame):
             PriorityFrame.__default_weight, PriorityFrame.__weight_length)
         payload.extend(weight)
 
-        self.__verbose('write a priority frame:',
+        self.verbose('write a priority frame:',
                        'stream dependency: {0}'.format(helper.bytes2hex(stream_dependency)),
                        'weight:            {0}'.format(helper.bytes2hex(weight)))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         # PRIORITY frame doesn't define any flags
         return 0x0
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             PriorityFrame.__name__, messages[0], messages[1:])
 
@@ -449,13 +449,13 @@ class PushPromiseFrame(Frame):
         # of type PROTOCOL_ERROR.
         if promised_stream_id <= 0:
             raise Exception('invalid promised stream id {0:d}'.format(promised_stream_id))
-        self.__promised_stream_id = promised_stream_id
+        self.promised_stream_id = promised_stream_id
 
-        Frame.__init__(self, PushPromiseFrame.frame_type, self.flags(), stream_id)
-        self.__headers = headers
+        Frame.__init__(self, PushPromiseFrame.frame_type, self.get_default_flags(), stream_id)
+        self.headers = headers
 
     def encoded_headers(self):
-        return Encoder().encode(self.__headers)
+        return Encoder().encode(self.headers)
 
     def payload(self):
         payload = bytearray()
@@ -467,7 +467,7 @@ class PushPromiseFrame(Frame):
 
         # write promised stream id
         promised_stream_id = encode_unsigned_integer(
-            self.__promised_stream_id, PushPromiseFrame.__promised_stream_id_length)
+            self.promised_stream_id, PushPromiseFrame.__promised_stream_id_length)
         payload.extend(promised_stream_id)
 
         # write header block fragment
@@ -482,7 +482,7 @@ class PushPromiseFrame(Frame):
         else:
             padding = bytearray()
 
-        self.__verbose('write a push promise frame:',
+        self.verbose('write a push promise frame:',
                        'padding length:     {0}'.format(helper.bytes2hex(padding_length)),
                        'promised stream id: {0}'.format(helper.bytes2hex(promised_stream_id)),
                        'header block:          ',
@@ -492,13 +492,13 @@ class PushPromiseFrame(Frame):
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return PushPromiseFrame.__padded_flag | PushPromiseFrame.__end_headers_flag
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             PushPromiseFrame.__name__, messages[0], messages[1:])
 
@@ -516,20 +516,20 @@ class RstStreamFrame(Frame):
         if (error_code < 0 or error_code >= RstStreamFrame.max_error_code):
             raise Exception('invalid error code {0:d}'.format(error_code))
 
-        self.__error_code = error_code
-        self.__stream_id = stream_id
-        Frame.__init__(self, RstStreamFrame.frame_type, self.flags(), stream_id)
+        self.error_code = error_code
+        self.stream_id = stream_id
+        Frame.__init__(self, RstStreamFrame.frame_type, self.get_default_flags(), stream_id)
 
     def payload(self):
         payload = bytearray()
         payload.extend(encode_unsigned_integer(
-            self.__error_code, RstStreamFrame.__default_error_code_length))
+            self.error_code, RstStreamFrame.__default_error_code_length))
         return payload
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def flags(self):
+    def get_default_flags(self):
         # RST_STREAM frame doesn't define any flags
         return 0x0
 
@@ -545,41 +545,41 @@ class SettingsFrame(Frame):
         Frame.__init__(self, SettingsFrame.frame_type)
 
         # parameters defined by the spec
-        self.__settings_header_table_size = 4096      # the initial value recommended by the spec
-        self.__settings_enable_push = 1               # the initial value recommended by the spec
-        self.__settings_max_concurrent_streams = 100  # the spec doesn't define the initial value
+        self.settings_header_table_size = 4096      # the initial value recommended by the spec
+        self.settings_enable_push = 1               # the initial value recommended by the spec
+        self.settings_max_concurrent_streams = 100  # the spec doesn't define the initial value
                                                       # for this parameter, but recommends that
                                                       # this value be no smaller than 100
-        self.__settings_initial_window_size = 65535   # 2^16-1 octets
+        self.settings_initial_window_size = 65535   # 2^16-1 octets
                                                       # the initial value recommended by the spec
-        self.__settings_max_frame_size = 16384        # 2^14 octets
+        self.settings_max_frame_size = 16384        # 2^14 octets
                                                       # the initial value recommended by the spec
-        self.__settings_max_header_list_size = 65535  # the spec doesn't difine the initial value
+        self.settings_max_header_list_size = 65535  # the spec doesn't difine the initial value
                                                       # for this parameter
 
     def disable_push(self):
-        self.__settings_enable_push = 0
+        self.settings_enable_push = 0
 
     def payload(self):
         payload = bytearray()
 
         # write SETTINGS_HEADER_TABLE_SIZE (0x1) parameter
-        payload.extend(self.encode_parameter(0x1, self.__settings_header_table_size))
+        payload.extend(self.encode_parameter(0x1, self.settings_header_table_size))
 
         # write SETTINGS_ENABLE_PUSH (0x2) parameter
-        payload.extend(self.encode_parameter(0x2, self.__settings_enable_push))
+        payload.extend(self.encode_parameter(0x2, self.settings_enable_push))
 
         # write SETTINGS_MAX_CONCURRENT_STREAMS (0x3) parameter
-        payload.extend(self.encode_parameter(0x3, self.__settings_max_concurrent_streams))
+        payload.extend(self.encode_parameter(0x3, self.settings_max_concurrent_streams))
 
         # write SETTINGS_INITIAL_WINDOW_SIZE (0x4) parameter
-        payload.extend(self.encode_parameter(0x4, self.__settings_initial_window_size))
+        payload.extend(self.encode_parameter(0x4, self.settings_initial_window_size))
 
         # write SETTINGS_MAX_FRAME_SIZE (0x5) parameter
-        payload.extend(self.encode_parameter(0x5, self.__settings_max_frame_size))
+        payload.extend(self.encode_parameter(0x5, self.settings_max_frame_size))
 
         # write SETTINGS_MAX_HEADER_LIST_SIZE (0x6) parameter
-        payload.extend(self.encode_parameter(0x6, self.__settings_max_header_list_size))
+        payload.extend(self.encode_parameter(0x6, self.settings_max_header_list_size))
 
         return payload
 
@@ -608,28 +608,28 @@ class WindowUpdateFrame(Frame):
     __window_size_increment_length = 4
 
     def __init__(self, stream_id = 0, window_size_increment = 0):
-        self.__window_size_increment = window_size_increment
-        Frame.__init__(self, WindowUpdateFrame.frame_type, self.flags(), stream_id)
+        self.window_size_increment = window_size_increment
+        Frame.__init__(self, WindowUpdateFrame.frame_type, self.get_default_flags(), stream_id)
 
     def payload(self):
         payload = bytearray()
 
         # write window size increment
         window_size_increment = encode_unsigned_integer(
-            self.__window_size_increment, WindowUpdateFrame.__window_size_increment_length)
+            self.window_size_increment, WindowUpdateFrame.__window_size_increment_length)
         payload.extend(window_size_increment)
 
-        self.__verbose('write a window update frame:',
-                       'window size increment: {0}'.format(self.__window_size_increment))
+        self.verbose('write a window update frame:',
+                       'window size increment: {0}'.format(self.window_size_increment))
 
         return payload
 
-    def flags(self):
+    def get_default_flags(self):
         return 0x0
 
     def encode(self):
         return Frame.encode(self, self.payload())
 
-    def __verbose(self, *messages):
+    def verbose(self, *messages):
         helper.verbose_with_indent(
             WindowUpdateFrame.__name__, messages[0], messages[1:])
