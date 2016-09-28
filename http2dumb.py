@@ -12,6 +12,7 @@ from http2core  import ContinuationFrame, WindowUpdateFrame, RstStreamFrame
 from http2core  import PushPromiseFrame, PingFrame, PriorityFrame, GoAwayFrame
 from helper     import DumbByteArrayFuzzer, DumbDictionaryFuzzer
 
+# This is from https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
 default_request_headers = {
         ':scheme'                : 'http',
         ':method'                : 'GET',
@@ -62,7 +63,62 @@ default_request_headers = {
         'X-Csrf-Token'           : 'i8XNjC4b8KVok4uw5RftR38Wgp2BFwql'
     }
 
-# TODO: it might be better to use different stream ids
+# This is from https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Response_fields
+default_response_headers = {
+        ':status'                       : '200',
+        'Access-Control-Allow-Origin'   : '*',
+        'Accept-Patch'                  : 'text/example;charset=utf-8',
+        'Accept-Ranges'                 : 'bytes',
+        'Age'                           : '12',
+        'Allow'                         : 'GET, HEAD, POST',
+        'Alt-Svc'                       : 'h2="http2.example.com:443"; ma=720',
+        'Cache-Control'                 : 'max-age=3600',
+        'Connection'                    : 'close',
+        'Content-Disposition'           : 'attachment; filename="fname.ext"',
+        'Content-Encoding'              : 'gzip',
+        'Content-Language'              : 'da',
+        'Content-Length'                : '348',
+        'Content-Location'              : '/index.htm',
+        'Content-MD5'                   : 'Q2hlY2sgSW50ZWdyaXR5IQ==',
+        'Content-Range'                 : 'bytes 21010-47021/47022',
+        'Content-Type'                  : 'text/html; charset=utf-8',
+        'Date'                          : 'Tue, 15 Nov 1994 08:12:31 GMT',
+        'ETag'                          : '"737060cd8c284d8af7ad3082f209582d"',
+        'Expires'                       : 'Thu, 01 Dec 1994 16:00:00 GMT',
+        'Last-Modified'                 : 'Tue, 15 Nov 1994 12:45:26 GMT',
+        'Link'                          : '</feed>; rel="alternate"',
+        'Location'                      : 'http://www.w3.org/pub/WWW/People.html',
+        'P3P'                           : ('CP="This is not a P3P policy!'),
+        'Pragma'                        : 'no-cache',
+        'Proxy-Authenticate'            : 'Basic',
+        'Public-Key-Pins'               : 'max-age=2592000; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";',
+        'Refresh'                       : '5; url=http://www.w3.org/pub/WWW/People.html',
+        'Retry-After'                   : 'Fri, 07 Nov 2014 23:59:59 GMT',
+        'Server'                        : 'Apache/2.4.1 (Unix)',
+        'Set-Cookie'                    : 'UserID=JohnDoe; Max-Age=3600; Version=1',
+        'Strict-Transport-Security'     : 'max-age=16070400; includeSubDomains',
+        'Trailer'                       : 'Max-Forwards',
+        'Transfer-Encoding'             : 'chunked',
+        'TSV'                           : '?',
+        'Upgrade'                       : 'HTTP/2.0, HTTPS/1.3, IRC/6.9, RTA/x11, websocket',
+        'Vary'                          : '*',
+        'Via'                           : '1.0 fred, 1.1 example.com (Apache/1.1)',
+        'Warning'                       : '199 Miscellaneous warning',
+        'WWW-Authenticate'              : 'Basic',
+        'X-Frame-Options'               : 'allowall',
+        'X-XSS-Protection'              : '1; mode=block',
+        'X-WebKit-CSP'                  : 'default-src \'self\'',
+        'X-Content-Type-Options'        : 'nosniff',
+        'X-Powered-By'                  : 'PHP/5.4.0',
+        'X-UA-Compatible'               : 'IE=EmulateIE7',
+        'X-UA-Compatible'               : 'IE=edge',
+        'X-UA-Compatible'               : 'Chrome=1',
+        'X-Content-Duration'            : '42.666',
+        'Upgrade-Insecure-Requests'     : '1',
+        'X-Request-ID'                  : 'f058ebd6-02f7-4d3f-942e-904344e8cde5',
+    }
+
+# TODO' : 'it might be better to use different stream ids
 #       because some of them can't be re-used in some cases (see the spec),
 #       for example if RST_STREAM frame was received
 class DumbHTTP2ClientFuzzer:
@@ -233,10 +289,10 @@ class DumbHTTP2ServerFuzzer:
                 DumbSettingsFuzzer(None, seed, min_ratio, max_ratio, start_test))
         if headers_fuzzer:
             self.fuzzers.append(DumbHeadersFuzzer(
-                default_request_headers, seed, min_ratio, max_ratio, start_test))
+                default_response_headers, seed, min_ratio, max_ratio, start_test))
         if hpack_fuzzer:
             # TODO: should it use different stream ids?
-            headers_frame = HeadersFrame(0x1, default_request_headers)
+            headers_frame = HeadersFrame(0x1, default_response_headers)
             self.fuzzers.append(
                 DumbHPackFuzzer(headers_frame, seed, min_ratio, max_ratio, start_test))
         if priority_fuzzer:
@@ -249,7 +305,7 @@ class DumbHTTP2ServerFuzzer:
             self.fuzzers.append(DumbRstStreamFuzzer(seed, start_test))
         if push_promise_fuzzer:
             self.fuzzers.append(DumbPushPromiseFuzzer(
-                default_request_headers, seed, min_ratio, max_ratio, start_test))
+                default_response_headers, seed, min_ratio, max_ratio, start_test))
         if ping_fuzzer:
             self.fuzzers.append(
                 DumbPingFuzzer(seed, min_ratio, max_ratio, start_test))
@@ -261,7 +317,7 @@ class DumbHTTP2ServerFuzzer:
                 seed, min_ratio, max_ratio, start_test))
         if continuation_fuzzer:
             self.fuzzers.append(DumbContinuationFuzzer(
-                default_request_headers, seed, min_ratio, max_ratio, start_test))
+                default_response_headers, seed, min_ratio, max_ratio, start_test))
 
     def info(self, *messages):
         helper.print_with_indent(
@@ -288,6 +344,9 @@ class DumbHTTP2ServerFuzzer:
 
         socket.send(settings.encode())
         data = socket.recv(1024)
+
+        # TODO: HTTP/2 server must include ":status" pseudo-header field in all
+        #       responses; otherwise, the response is malformed
 
         while (self.test <= self.end_test):
             try:
