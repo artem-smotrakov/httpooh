@@ -351,6 +351,9 @@ class DumbCommonFrameFuzzer(AbstractDumbFuzzer):
 
     def __init__(self, frame_bytes = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if frame_bytes is None:
             payload = bytearray(DumbCommonFrameFuzzer.__default_payload_length)
             self.frame_bytes = Frame(DumbCommonFrameFuzzer.__default_frame_type).encode(payload)
@@ -375,6 +378,9 @@ class DumbContinuationFuzzer(AbstractDumbFuzzer):
     def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (),
                  ignored_header_names = ('accept', ':scheme', ':method', ':path')):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if headers is None:
             raise Exception('headers not specified')
         self.headers = headers
@@ -405,6 +411,9 @@ class DumbDataFuzzer(AbstractDumbFuzzer):
 
     def __init__(self, data = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = ()):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if data is None:
             self.data = bytearray()
             random_byte = random.Random()
@@ -482,6 +491,9 @@ class DumbHeadersFuzzer(AbstractDumbFuzzer):
     def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (),
                  ignored_header_names = ('accept', ':scheme', ':method', ':path')):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if headers is None:
             raise Exception('headers not specified')
         self.headers = headers
@@ -512,6 +524,7 @@ class DumbHPackFuzzer(AbstractDumbFuzzer):
                  min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0):
 
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
         self.stream_id = 0x1
 
         if headers_frame is None:
@@ -568,6 +581,7 @@ class DumbPriorityFuzzer(AbstractDumbFuzzer):
     def __init__(self, priority_frame = None, seed = 1,
                  min_ratio = 0.01, max_ratio = 0.05, start_test = 0, ignored_bytes = ()):
 
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
         self.stream_id = DumbPriorityFuzzer.__default_stream_id
 
         if priority_frame is None:
@@ -603,6 +617,9 @@ class DumbPushPromiseFuzzer(AbstractDumbFuzzer):
     def __init__(self, headers = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_symbols = (),
                  ignored_header_names = ('accept', ':scheme', ':method', ':path')):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if headers is None:
             raise Exception('headers not specified')
         self.headers = headers
@@ -659,6 +676,9 @@ class DumbSettingsFuzzer(AbstractDumbFuzzer):
 
     def __init__(self, payload = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
                  start_test = 0, ignored_bytes = ()):
+
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
+
         if payload is None:
             self.payload = SettingsFrame().payload()  # default settings
         else:
@@ -681,6 +701,7 @@ class DumbWindowUpdateFuzzer(AbstractDumbFuzzer):
     __max_window_size_increment = 2**32 # we want to fuzz one reserved bit
 
     def __init__(self, seed = 1, min_ratio = 0.01, max_ratio = 0.05, start_test = 0):
+        AbstractDumbFuzzer.__init__(self, seed, min_ratio, max_ratio, start_test)
         self.random_window_size_increment = random.Random()
         self.random_window_size_increment.seed(seed * start_test)
 
