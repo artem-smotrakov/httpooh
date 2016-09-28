@@ -536,8 +536,8 @@ class DumbHPackFuzzer(AbstractDumbFuzzer):
 
     def next(self):
         fuzzed_payload = self.fuzzer.next()
-        return Frame(HeadersFrame.frame_type, self.stream_id,
-                     self.headers_frame.flags()).encode(fuzzed_payload)
+        return Frame(HeadersFrame.frame_type,
+                     self.headers_frame.flags, self.stream_id).encode(fuzzed_payload)
 
     def info(self, *messages):
         helper.print_with_indent(
