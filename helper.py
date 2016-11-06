@@ -114,23 +114,17 @@ class DumbAsciiStringFuzzer:
 class DumbDictionaryFuzzer:
 
     def __init__(self, dictionary, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
-                 start_test = 0, ignored_symbols = (), ignored_keys = ()):
+                 start_test = 0, ignored_symbols = (), ignored_keys = (),
+                 use_all = False):
         self.start_test = start_test
         self.test = start_test
         self.seed = seed
         self.dictionary = dictionary
         self.ignored_keys = ignored_keys
         self.ignored_symbols = ignored_symbols
-
-        self.total_length = 0
-        for key in self.dictionary:
-            self.total_length = self.total_length + len(key) + len(self.dictionary[key])
-
-        self.min_bytes = int(float(min_ratio) * int(self.total_length));
-        self.max_bytes = int(float(max_ratio) * int(self.total_length));
-        self.verbose('min bytes to change: {0:d}'.format(self.min_bytes))
-        self.verbose('max bytes to change: {0:d}'.format(self.max_bytes))
-
+        self.min_ratio = min_ratio
+        self.max_ratio = max_ratio
+        self.use_all = use_all
         self.reset()
 
     def set_test(self, test):
@@ -142,21 +136,40 @@ class DumbDictionaryFuzzer:
         self.random_n = random.Random()
         self.random_position = random.Random()
         self.random_byte = random.Random()
+        self.random_item = random.Random()
 
     def next(self):
-        fuzzed = self.dictionary.copy()
+        # generate seed for other pseudo-random generators
         self.random.seed(self.seed * self.test)
         seed = self.random.random()
-        if self.min_bytes == self.max_bytes:
-            n = self.min_bytes
+
+        if self.use_all:
+            fuzzed = self.dictionary.copy()
+        else:
+            self.random_item.seed(seed)
+            fuzzed = {}
+            for key in self.dictionary:
+                if self.random_item.random() >= 0.5:
+                    fuzzed[key] = self.dictionary[key]
+
+        total_length = 0
+        for key in fuzzed:
+            total_length = total_length + len(key) + len(fuzzed[key])
+
+        min_bytes = int(float(self.min_ratio) * int(total_length));
+        max_bytes = int(float(self.max_ratio) * int(total_length));
+
+        if min_bytes == max_bytes:
+            n = min_bytes
         else:
             self.random_n.seed(seed)
-            n = self.random_n.randrange(self.min_bytes, self.max_bytes)
+            n = self.random_n.randrange(min_bytes, max_bytes)
+
         self.random_position.seed(seed)
         self.random_byte.seed(seed)
         i = 0
         while (i < n):
-            pos = self.random_position.randint(0, self.total_length - 1)
+            pos = self.random_position.randint(0, total_length - 1)
 
             for key in fuzzed:
                 try:
