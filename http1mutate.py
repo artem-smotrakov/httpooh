@@ -23,9 +23,6 @@ parser.add_argument('--ratio',
 parser.add_argument('--request', help='path to file with HTTP request to fuzz')
 args = parser.parse_args()
 
-if args.verbose:
-    config.current.verbose = True
-
 host = args.host
 port = args.port
 seed = args.seed

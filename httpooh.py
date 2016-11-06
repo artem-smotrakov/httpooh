@@ -51,67 +51,36 @@ fuzzers_group.add_argument('--continuation', action='store_true',
 fuzzers_group.add_argument('--all', action='store_true',
                            help='enable all available fuzzers')
 
-args = parser.parse_args()
+conf = config.Config()
+conf.readargs(parser.parse_args())
+config.current = conf
 
-if (not args.common and not args.settings and not args.headers and not args.hpack
-        and not args.priority and not args.rst_stream and not args.data
-        and not args.push_promise and not args.ping and not args.goaway
-        and not args.window_update and not args.continuation and not args.all):
+if (conf.nofuzzer()):
     raise Exception('No fuzzer enabled')
 
-if args.verbose:
-    config.current.verbose = True
-
-host = args.host
-port = args.port
-seed = args.seed
-
-if args.test:
-    parts = args.test.split(':')
-    if len(parts) == 1:
-        start_test = int(parts[0])
-        end_test = start_test
-    elif len(parts) == 2:
-        start_test = int(parts[0])
-        if parts[1] == '' or parts[1] == 'infinite':
-            end_test = float('inf')
-        else:
-            end_test = int(parts[1])
-    else:
-        raise Exception('Could not parse --test value, too many colons')
-else:
-    start_test = 0
-    end_test = float('inf')
-
-parts = args.ratio.split(':')
-if len(parts) == 1:
-    min_ratio = float(parts[0])
-    max_ratio = min_ratio
-elif len(parts) == 2:
-    min_ratio = float(parts[0])
-    max_ratio = float(parts[1])
-else:
-    raise Exception('Could not parse --ratio value, too many colons')
-
-if args.server:
-    if args.all:
+if conf.server:
+    if conf.all:
         fuzzer = http2dumb.DumbHTTP2ServerFuzzer(
-                    port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+                    conf.port, conf.tls, conf.seed,
+                    conf.min_ratio, conf.max_ratio, conf.start_test, conf.end_test)
     else:
         fuzzer = http2dumb.DumbHTTP2ServerFuzzer(
-                    port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
-                    args.common, args.settings, args.headers, args.hpack, args.priority,
-                    args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
-                    args.window_update, args.continuation)
+                    conf.port, conf.tls, conf.seed,
+                    conf.min_ratio, conf.max_ratio, conf.start_test, conf.end_test,
+                    conf.common, conf.settings, conf.headers, conf.hpack, conf.priority,
+                    conf.rst_stream, conf.data, conf.push_promise, conf.ping, conf.goaway,
+                    conf.window_update, conf.continuation)
 else:
-    if args.all:
+    if conf.all:
         fuzzer = http2dumb.DumbHTTP2ClientFuzzer(
-                    host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test)
+                    conf.host, conf.port, conf.tls, conf.seed,
+                    conf.min_ratio, conf.max_ratio, conf.start_test, conf.end_test)
     else:
         fuzzer = http2dumb.DumbHTTP2ClientFuzzer(
-                    host, port, args.tls, seed, min_ratio, max_ratio, start_test, end_test,
-                    args.common, args.settings, args.headers, args.hpack, args.priority,
-                    args.rst_stream, args.data, args.push_promise, args.ping, args.goaway,
-                    args.window_update, args.continuation)
+                    conf.host, conf.port, conf.tls, conf.seed,
+                    conf.min_ratio, conf.max_ratio, conf.start_test, conf.end_test,
+                    conf.common, conf.settings, conf.headers, conf.hpack, conf.priority,
+                    conf.rst_stream, conf.data, conf.push_promise, conf.ping, conf.goaway,
+                    conf.window_update, conf.continuation)
 
 fuzzer.run()
