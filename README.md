@@ -1,3 +1,3 @@
 # httpooh
-## Dumb HTTP1 fuzzer
+## Dumb HTTP2 fuzzer
 TBD
