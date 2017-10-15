@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import textwrap
 import random
 import helper
 import socket
@@ -11,6 +10,8 @@ from http2core  import Frame, SettingsFrame, HeadersFrame, DataFrame
 from http2core  import ContinuationFrame, WindowUpdateFrame, RstStreamFrame
 from http2core  import PushPromiseFrame, PingFrame, PriorityFrame, GoAwayFrame
 from helper     import DumbByteArrayFuzzer, DumbDictionaryFuzzer
+
+from helper import PapaTest
 
 # This is from https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
 default_request_headers = {
@@ -118,10 +119,10 @@ default_response_headers = {
         'X-Request-ID'                  : 'f058ebd6-02f7-4d3f-942e-904344e8cde5',
     }
 
-# TODO' : 'it might be better to use different stream ids
+# TODO: it might be better to use different stream ids
 #       because some of them can't be re-used in some cases (see the spec),
 #       for example if RST_STREAM frame was received
-class DumbHTTP2ClientFuzzer:
+class DumbHttp2ServerTest(PapaTest):
 
     __max_stream_id = 2**31     # 31-bit stream id
 
@@ -194,7 +195,7 @@ class DumbHTTP2ClientFuzzer:
 
     def info(self, *messages):
         helper.print_with_indent(
-            DumbHTTP2ClientFuzzer.__name__, messages[0], messages[1:])
+            DumbHttp2ServerTest.__name__, messages[0], messages[1:])
 
     def run(self):
         self.client = connection.Client(self.host, self.port, self.is_tls)
@@ -242,7 +243,7 @@ class DumbHTTP2ClientFuzzer:
     def close(self):
         self.client.close()
 
-class DumbHTTP2ServerFuzzer:
+class DumbHttp2ClientTest(PapaTest):
 
     __max_stream_id = 2**31     # 31-bit stream id
 
@@ -321,7 +322,7 @@ class DumbHTTP2ServerFuzzer:
 
     def info(self, *messages):
         helper.print_with_indent(
-            DumbHTTP2ServerFuzzer.__name__, messages[0], messages[1:])
+            DumbHttp2ClientTest.__name__, messages[0], messages[1:])
 
     def run(self):
         self.info('started, test range {0}:{1}'

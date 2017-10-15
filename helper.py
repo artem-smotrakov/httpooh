@@ -4,6 +4,14 @@ import textwrap
 import config
 import random
 
+
+class PapaTest:
+
+    def name(self): return self.__class__.__name__
+
+    def description(self): return 'Here should be a description but someone was too lazy!'
+
+
 def verbose(*args):
     if config.current.verbose:
         if len(args) == 0:
