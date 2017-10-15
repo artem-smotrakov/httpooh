@@ -4,12 +4,17 @@ import textwrap
 import config
 import random
 
-
 class PapaTest:
 
     def name(self): return self.__class__.__name__
 
     def description(self): return 'Here should be a description but someone was too lazy!'
+
+    def info(self, *messages):
+        print_with_indent(self.__class__.__name__, messages[0], messages[1:])
+
+    def achtung(self, *messages):
+        print_with_indent(self.__class__.__name__, 'Achtung!!! {}'.format(messages[0]), messages[1:])
 
 
 def verbose(*args):

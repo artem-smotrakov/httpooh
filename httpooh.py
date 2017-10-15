@@ -3,6 +3,7 @@
 import argparse
 import config
 from http2dumb import DumbHttp2ServerTest, DumbHttp2ClientTest
+from http2smart import Http1UpgradeTest
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--verbose', help='more logs', action='store_true', default=False)
@@ -17,7 +18,8 @@ config.current = config.Config(parser)
 
 available_tests = [
     DumbHttp2ServerTest(config.current.host, config.current.port, config.current.tls),
-    DumbHttp2ClientTest(config.current.port, config.current.tls)
+    DumbHttp2ClientTest(config.current.port, config.current.tls),
+    Http1UpgradeTest(config)
 ]
 
 if config.current.list:
@@ -26,6 +28,9 @@ if config.current.list:
         print('{0}: {1}'.format(test.name(), test.description()))
 elif config.current.test:
     # run specified tests
-    raise Exception('No tests for you!')
+    for test in available_tests:
+        if config.current.test in test.name():
+            test.run()
+
 else:
     raise Exception('What the hell? Run --help and tell me what to do!')

@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import base64
+import config
 import helper
 from hpack import Encoder
 
@@ -633,3 +635,35 @@ class WindowUpdateFrame(Frame):
     def verbose(self, *messages):
         helper.verbose_with_indent(
             WindowUpdateFrame.__name__, messages[0], messages[1:])
+
+'''
+Example:
+
+    GET / HTTP/1.1
+    Host: server.example.com
+    Connection: Upgrade, HTTP2-Settings
+    Upgrade: h2c
+    HTTP2-Settings: <base64url encoding of HTTP/2 SETTINGS payload>
+'''
+class Http1Upgrade:
+
+    def __init__(self):
+        self.method = 'GET'
+        self.path = '/'
+        self.version = 'HTTP/1.1'
+        self.host = config.current.host
+        self.connection = 'Upgrade, HTTP2-Settings'
+        self.upgrade = 'h2' if config.current.tls else 'h2c'
+        self.http2settings = SettingsFrame()
+
+    def encode(self):
+        return '''{} {} {}
+        Host: {}
+        Connection: {}
+        Upgrade: {}
+        HTTP2-Settings: {}
+        '''.format(self.method, self.path, self.version,
+                   self.host,
+                   self.connection,
+                   self.upgrade,
+                   base64.b64encode(self.http2settings))
