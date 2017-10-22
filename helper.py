@@ -18,6 +18,12 @@ class AbstractTest:
         print_with_indent(self.__class__.__name__, 'Achtung!!! {}'.format(messages[0]), messages[1:])
 
 
+def truncate(data):
+    if len(data) > 180:
+        return data[:75] + ' ... (truncated) ... ' + data[len(data) - 75:]
+
+    return data
+
 def verbose(*args):
     if config.current.verbose:
         if len(args) == 0:

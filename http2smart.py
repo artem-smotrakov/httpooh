@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import connection
+import helper
 import socket
 from fuzzbase import LinearFuzzer, RequestMethodFuzzer, RequestPathFuzzer, RequestVersionFuzzer, HostnameFuzzer
 from helper import AbstractTest
@@ -28,7 +29,7 @@ class Http1UpgradeTest(AbstractTest):
                 self.info('send fuzzed request:', str(fuzzed))
                 client.send(fuzzed.encode())
                 data = client.receive()
-                self.info('received from server:', data.decode('ascii'))
+                self.info('received from server:', helper.truncate(data.decode('ascii')))
             except socket.error as msg:
                 self.achtung('the following error occurred while sending data: {}'.format(msg))
             finally:
