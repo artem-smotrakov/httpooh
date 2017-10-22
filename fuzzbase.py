@@ -56,7 +56,7 @@ class LinearFuzzer:
         return state
 
     def set_state(self, state):
-        substates = get_substates(state);
+        substates = get_substates(state)
         if len(substates) != len(self.fuzzers):
             raise Exception('Number of substates does not match to number of fuzzers')
 
@@ -93,22 +93,48 @@ class LinearFuzzer:
         self.current().fuzz(subject)
 
 
-class PapaFuzzer:
+class AbstractFuzzer:
+
+    def __init__(self):
+        self.prefix = 'abstract'
+
+    def set_prefix(self, prefix):
+        self.prefix = prefix
+
+    def total(self):
+        raise Exception('No totals for you!')
+
+    def get_state(self):
+        raise Exception('No states for you!')
+
+    def set_state(self, state):
+        raise Exception('No states for you!')
+
+    def ready(self):
+        raise Exception('No fuzzing for you!')
+
+    def reset(self):
+        raise Exception('No resets for you!')
+
+    def next(self):
+        raise Exception('No fuzzing for you!')
+
+    def fuzz(self, subject):
+        raise Exception('No fuzzing for you!')
+
+
+class RequestMethodFuzzer(AbstractFuzzer):
     pass
 
 
-class RequestMethodFuzzer:
+class RequestPathFuzzer(AbstractFuzzer):
     pass
 
 
-class RequestPathFuzzer:
+class RequestVersionFuzzer(AbstractFuzzer):
     pass
 
 
-class RequestVersionFuzzer:
-    pass
-
-
-class HostnameFuzzer:
+class HostnameFuzzer(AbstractFuzzer):
     pass
 

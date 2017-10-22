@@ -4,7 +4,8 @@ import textwrap
 import config
 import random
 
-class PapaTest:
+
+class AbstractTest:
 
     def name(self): return self.__class__.__name__
 
@@ -28,12 +29,15 @@ def verbose(*args):
         else:
             verbose_with_indent(args[0], args[1], args[2:])
 
+
 def print_with_prefix(prefix, message):
     print('[{0:s}] {1}'.format(prefix, message))
+
 
 def verbose_with_prefix(prefix, message):
     if config.current.verbose:
         print_with_prefix(prefix, message)
+
 
 def print_with_indent(prefix, first_message, other_messages):
     formatted_prefix = '[{0:s}] '.format(prefix)
@@ -45,12 +49,15 @@ def print_with_indent(prefix, first_message, other_messages):
         for message in other_messages:
             print(wrapper.fill(message))
 
+
 def verbose_with_indent(prefix, first_message, other_messages):
     if config.current.verbose:
         print_with_indent(prefix, first_message, other_messages)
 
+
 def bytes2hex(data):
     return ' '.join('{:02x}'.format(b) for b in data)
+
 
 class DumbByteArrayFuzzer:
 
@@ -106,6 +113,7 @@ class DumbByteArrayFuzzer:
     def verbose(self, message):
         verbose(DumbByteArrayFuzzer.__name__, message)
 
+
 class DumbAsciiStringFuzzer:
 
     def __init__(self, string, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
@@ -123,6 +131,7 @@ class DumbAsciiStringFuzzer:
 
     def next(self):
         return self.byte_array_fuzzer.next()
+
 
 class DumbDictionaryFuzzer:
 

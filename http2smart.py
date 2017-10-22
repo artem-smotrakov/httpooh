@@ -3,19 +3,19 @@
 import connection
 import socket
 from fuzzbase import LinearFuzzer, RequestMethodFuzzer, RequestPathFuzzer, RequestVersionFuzzer, HostnameFuzzer
-from helper import PapaTest
+from helper import AbstractTest
 from http2core import Http1Upgrade
 
 
-class Http1UpgradeTest(PapaTest):
+class Http1UpgradeTest(AbstractTest):
 
     def __init__(self, config):
         self.config = config
         self.fuzzer = LinearFuzzer()
         self.fuzzer.add(RequestMethodFuzzer())
-        self.fuzzer.add(RequestPathFuzzer())
-        self.fuzzer.add(RequestVersionFuzzer())
-        self.fuzzer.add(HostnameFuzzer())
+        # self.fuzzer.add(RequestPathFuzzer())
+        # self.fuzzer.add(RequestVersionFuzzer())
+        # self.fuzzer.add(HostnameFuzzer())
 
     def run(self):
         self.info('start, state: '.format(self.fuzzer.get_state()))

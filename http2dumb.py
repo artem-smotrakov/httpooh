@@ -11,7 +11,7 @@ from http2core  import ContinuationFrame, WindowUpdateFrame, RstStreamFrame
 from http2core  import PushPromiseFrame, PingFrame, PriorityFrame, GoAwayFrame
 from helper     import DumbByteArrayFuzzer, DumbDictionaryFuzzer
 
-from helper import PapaTest
+from helper import AbstractTest
 
 # This is from https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
 default_request_headers = {
@@ -119,10 +119,11 @@ default_response_headers = {
         'X-Request-ID'                  : 'f058ebd6-02f7-4d3f-942e-904344e8cde5',
     }
 
+
 # TODO: it might be better to use different stream ids
 #       because some of them can't be re-used in some cases (see the spec),
 #       for example if RST_STREAM frame was received
-class DumbHttp2ServerTest(PapaTest):
+class DumbHttp2ServerTest(AbstractTest):
 
     __max_stream_id = 2**31     # 31-bit stream id
 
@@ -204,7 +205,7 @@ class DumbHttp2ServerTest(PapaTest):
                     .format(self.start_test, self.end_test))
         test = self.start_test
         successfully_sent = True
-        while (test <= self.end_test):
+        while test <= self.end_test:
             if self.client.isconnected() is False:
                 self.client.connect()
                 self.info('send a client connection preface')
@@ -243,7 +244,8 @@ class DumbHttp2ServerTest(PapaTest):
     def close(self):
         self.client.close()
 
-class DumbHttp2ClientTest(PapaTest):
+
+class DumbHttp2ClientTest(AbstractTest):
 
     __max_stream_id = 2**31     # 31-bit stream id
 
@@ -326,7 +328,7 @@ class DumbHttp2ClientTest(PapaTest):
 
     def run(self):
         self.info('started, test range {0}:{1}'
-                    .format(self.start_test, self.end_test))
+                  .format(self.start_test, self.end_test))
         self.server = connection.Server(self.port, self, self.is_tls)
         self.server.start()
 
@@ -376,6 +378,7 @@ class DumbHttp2ClientTest(PapaTest):
     def close(self):
         self.server.close()
 
+
 class AbstractDumbFuzzer:
 
     def __init__(self, seed = 1, min_ratio = 0.01, max_ratio = 0.05, start_test = 0, fuzzer = None):
@@ -404,6 +407,7 @@ class AbstractDumbFuzzer:
         helper.print_with_indent(
             AbstractDumbFuzzer.__name__, messages[0], messages[1:])
 
+
 class DumbCommonFrameFuzzer(AbstractDumbFuzzer):
 
     __default_frame_type = 0x0          # default is DATA frame
@@ -429,6 +433,7 @@ class DumbCommonFrameFuzzer(AbstractDumbFuzzer):
     def info(self, *messages):
         helper.print_with_indent(
             DumbCommonFrameFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz CONTINUATION frame flags
 # TODO: don't send all headers, but select them randomly
@@ -463,6 +468,7 @@ class DumbContinuationFuzzer(AbstractDumbFuzzer):
     def verbose(self, *messages):
         helper.verbose_with_indent(
             DumbContinuationFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz DATA frame flags
 # TODO: don't generate random data, but modify some valid data
@@ -500,6 +506,7 @@ class DumbDataFuzzer(AbstractDumbFuzzer):
     def verbose(self, *messages):
         helper.verbose_with_indent(
             DumbDataFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz GOAWAY frame flags even if the spec doesn't define any
 # TODO: fuzz stream ids (even if the spec says it should be 0x0)
@@ -543,6 +550,7 @@ class DumbGoAwayFuzzer(AbstractDumbFuzzer):
         helper.verbose_with_indent(
             DumbGoAwayFuzzer.__name__, messages[0], messages[1:])
 
+
 # TODO: fuzz HEADER frame flags
 # TODO: don't send all headers, but select them randomly
 # TODO: send fuzzed CONTINUATION frames
@@ -578,6 +586,7 @@ class DumbHeadersFuzzer(AbstractDumbFuzzer):
         helper.verbose_with_indent(
             DumbHeadersFuzzer.__name__, messages[0], messages[1:])
 
+
 class DumbHPackFuzzer(AbstractDumbFuzzer):
 
     def __init__(self, headers_frame = None, seed = 1,
@@ -607,6 +616,7 @@ class DumbHPackFuzzer(AbstractDumbFuzzer):
         helper.verbose_with_indent(
             DumbHPackFuzzer.__name__, messages[0], messages[1:])
 
+
 # TODO: fuzz PING frame flags
 # TODO: fuzz length of opaque data
 # TODO: fuzz stream ids (even if the spec says it should be 0x0)
@@ -632,6 +642,7 @@ class DumbPingFuzzer(AbstractDumbFuzzer):
     def verbose(self, *messages):
         helper.verbose_with_indent(
             DumbPingFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz PRIORITY frame flags (even if PRIORITY frame doesn't define any)
 class DumbPriorityFuzzer(AbstractDumbFuzzer):
@@ -666,6 +677,7 @@ class DumbPriorityFuzzer(AbstractDumbFuzzer):
     def verbose(self, *messages):
         helper.verbose_with_indent(
             DumbPriorityFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz PUSH_PROMISE frame flags
 # TODO: don't send all headers, but select them randomly
@@ -704,6 +716,7 @@ class DumbPushPromiseFuzzer(AbstractDumbFuzzer):
         helper.verbose_with_indent(
             DumbPushPromiseFuzzer.__name__, messages[0], messages[1:])
 
+
 # TODO: fuzz frame flags even if RST_STREAM frame doesn't define any flags
 class DumbRstStreamFuzzer(AbstractDumbFuzzer):
 
@@ -732,6 +745,7 @@ class DumbRstStreamFuzzer(AbstractDumbFuzzer):
         helper.verbose_with_indent(
             DumbRstStreamFuzzer.__name__, messages[0], messages[1:])
 
+
 class DumbSettingsFuzzer(AbstractDumbFuzzer):
 
     def __init__(self, payload = None, seed = 1, min_ratio = 0.01, max_ratio = 0.05,
@@ -754,6 +768,7 @@ class DumbSettingsFuzzer(AbstractDumbFuzzer):
     def info(self, *messages):
         helper.print_with_indent(
             DumbSettingsFuzzer.__name__, messages[0], messages[1:])
+
 
 # TODO: fuzz WINDOW_UPDATE frame flags even if the spec doesn't define any
 class DumbWindowUpdateFuzzer(AbstractDumbFuzzer):
