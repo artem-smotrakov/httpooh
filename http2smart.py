@@ -18,17 +18,17 @@ class Http1UpgradeTest(AbstractTest):
         # self.fuzzer.add(HostnameFuzzer())
 
     def run(self):
-        self.info('start, state: '.format(self.fuzzer.get_state()))
-        client = connection.Client(self.config.host, self.config.port, self.config.is_tls)
+        self.info('start, state: {}'.format(self.fuzzer.get_state()))
+        client = connection.Client(self.config.host, self.config.port, self.config.tls)
         while self.fuzzer.ready():
-            self.info('state: {}'.format(self.fuzzer.state()))
+            self.info('state: {}'.format(self.fuzzer.get_state()))
             client.connect()
             try:
                 fuzzed = self.fuzzer.fuzz(Http1Upgrade())
-                self.info('send fuzzed request', fuzzed)
-                client.send(fuzzed)
-                data = self.client.receive()
-                self.info('received from server', data)
+                self.info('send fuzzed request:', str(fuzzed))
+                client.send(fuzzed.encode())
+                data = client.receive()
+                self.info('received from server:', data.decode('ascii'))
             except socket.error as msg:
                 self.achtung('the following error occurred while sending data: {}'.format(msg))
             finally:
@@ -36,5 +36,5 @@ class Http1UpgradeTest(AbstractTest):
                 client.close()
         self.info('finished')
 
-    def state(self, s):
-        self.fuzzer.state(s)
+    def set_state(self, s):
+        self.fuzzer.set_state(s)

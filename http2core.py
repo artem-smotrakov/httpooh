@@ -230,6 +230,7 @@ class GoAwayFrame(Frame):
         helper.verbose_with_indent(
             GoAwayFrame.__name__, messages[0], messages[1:])
 
+
 # HTTP/2 Headers frame
 # See https://tools.ietf.org/html/rfc7540#section-6.2 for details
 class HeadersFrame(Frame):
@@ -600,6 +601,7 @@ class SettingsFrame(Frame):
     def encode_value(self, value):
         return encode_unsigned_integer(value, SettingsFrame.__value_length)
 
+
 # HTTP/2 WINDOW_UPDATE frame
 # See https://tools.ietf.org/html/rfc7540#section-6.9 for details
 class WindowUpdateFrame(Frame):
@@ -636,16 +638,23 @@ class WindowUpdateFrame(Frame):
         helper.verbose_with_indent(
             WindowUpdateFrame.__name__, messages[0], messages[1:])
 
-'''
-Example:
 
-    GET / HTTP/1.1
-    Host: server.example.com
-    Connection: Upgrade, HTTP2-Settings
-    Upgrade: h2c
-    HTTP2-Settings: <base64url encoding of HTTP/2 SETTINGS payload>
-'''
+# Example:
+#
+#    GET / HTTP/1.1
+#    Host: server.example.com
+#    Connection: Upgrade, HTTP2-Settings
+#    Upgrade: h2c
+#    HTTP2-Settings: <base64url encoding of HTTP/2 SETTINGS payload>
 class Http1Upgrade:
+
+    template = '''{} {} {}
+Host: {}
+Connection: {}
+Upgrade: {}
+HTTP2-Settings: {}
+
+'''
 
     def __init__(self):
         self.method = 'GET'
@@ -657,13 +666,21 @@ class Http1Upgrade:
         self.http2settings = SettingsFrame()
 
     def encode(self):
-        return '''{} {} {}
-        Host: {}
-        Connection: {}
-        Upgrade: {}
-        HTTP2-Settings: {}
-        '''.format(self.method, self.path, self.version,
-                   self.host,
-                   self.connection,
-                   self.upgrade,
-                   base64.b64encode(self.http2settings))
+        return self.get_http_request().encode('ascii')
+
+    def get_http_request(self):
+        return self.template.format(self.method, self.path, self.version,
+                                    self.host,
+                                    self.connection,
+                                    self.upgrade,
+                                    self.get_settings_frame_string())
+
+    def get_settings_frame_string(self):
+        return base64.b64encode(self.http2settings.encode()).decode('ascii')
+
+    def set_method(self, method):
+        self.method = method
+
+    def __repr__(self):
+        return self.get_http_request()
+

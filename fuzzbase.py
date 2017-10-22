@@ -35,7 +35,7 @@ class LinearFuzzer:
         self.prefix = 'linear'
 
     def current(self):
-        return self.current()
+        return self.fuzzers[self.index]
 
     def set_prefix(self, prefix):
         self.prefix = prefix
@@ -52,7 +52,7 @@ class LinearFuzzer:
     def get_state(self):
         state = self.prefix + ':' + str(self.index)
         for fuzzer in self.fuzzers:
-            state = state + fuzzer.get_state()
+            state = state + '(' + fuzzer.get_state() + ')'
         return state
 
     def set_state(self, state):
@@ -90,7 +90,7 @@ class LinearFuzzer:
         return False
 
     def fuzz(self, subject):
-        self.current().fuzz(subject)
+        return self.current().fuzz(subject)
 
 
 class AbstractFuzzer:
@@ -124,7 +124,50 @@ class AbstractFuzzer:
 
 
 class RequestMethodFuzzer(AbstractFuzzer):
-    pass
+
+    def __init__(self):
+        super().__init__()
+        self.prefix = 'request_method'
+        self.index = 0
+        self.values = [
+            '',
+            'X' * 100000
+        ]
+
+    def total(self):
+        return len(self.values)
+
+    def get_state(self):
+        return '{}:{}'.format(self.prefix, self.index)
+
+    def set_state(self, state):
+        if not state.startswith(self.prefix):
+            raise Exception('What the hell? State does not start with "{}"'.format(self.prefix))
+
+        if ':' not in state:
+            raise Exception('What the hell? State does not have ":"')
+
+        self.index = int(state[state.index(':'):])
+
+    def ready(self):
+        return self.index < len(self.values)
+
+    def reset(self):
+        self.index = 0
+
+    def next(self):
+        if self.index == len(self.values) - 1:
+            return False
+
+        self.index += 1
+        return True
+
+    def get_fuzzed_method(self):
+        return self.values[self.index]
+
+    def fuzz(self, request):
+        request.set_method(self.get_fuzzed_method())
+        return request
 
 
 class RequestPathFuzzer(AbstractFuzzer):

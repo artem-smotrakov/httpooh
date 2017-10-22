@@ -19,7 +19,7 @@ config.current = config.Config(parser)
 available_tests = [
     DumbHttp2ServerTest(config.current.host, config.current.port, config.current.tls),
     DumbHttp2ClientTest(config.current.port, config.current.tls),
-    Http1UpgradeTest(config)
+    Http1UpgradeTest(config.current)
 ]
 
 if config.current.list:
