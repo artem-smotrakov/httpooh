@@ -100,6 +100,7 @@ class AbstractFuzzer:
 
     def set_prefix(self, prefix):
         self.prefix = prefix
+        return self
 
     def total(self):
         raise Exception('No totals for you!')
@@ -123,19 +124,27 @@ class AbstractFuzzer:
         raise Exception('No fuzzing for you!')
 
 
-class RequestMethodFuzzer(AbstractFuzzer):
+# BoringFuzzer has a specified set of values which it uses for fuzzing
+class BoringFuzzer(AbstractFuzzer):
 
     def __init__(self):
         super().__init__()
-        self.prefix = 'request_method'
+        self.action = None
+        self.prefix = 'boring_fuzzer'
         self.index = 0
-        self.values = [
-            '',
-            'X' * 100000,
-            'GET\x00'
-        ]
-        for code in range(0, 256):
-            self.values.append(chr(code))
+        self.values = []
+
+    def add(self, something):
+        if isinstance(something, list):
+            for value in something:
+                self.values.append(value)
+        else:
+            self.values.append(something)
+
+        return self
+
+    def set_action(self, action):
+        self.action = action
 
     def total(self):
         return len(self.values)
@@ -165,12 +174,30 @@ class RequestMethodFuzzer(AbstractFuzzer):
         self.index += 1
         return True
 
-    def get_fuzzed_method(self):
+    def get_fuzzed_data(self):
         return self.values[self.index]
 
-    def fuzz(self, request):
-        request.set_method(self.get_fuzzed_method())
-        return request
+    def fuzz(self, subject):
+        if self.action:
+            self.action(subject, self.get_fuzzed_data())
+            return subject
+
+        raise Exception('You should have told me how I can fuzz')
+
+
+class RequestMethodFuzzer(BoringFuzzer):
+
+    def __init__(self):
+        super().__init__()
+        self.set_prefix('request_method')
+        self.set_action(lambda request, fuzzed: request.set_method(fuzzed))
+        self.add([
+            '',
+            'X' * 100000,
+            'GET\x00'
+        ])
+        for code in range(0, 256):
+            self.add(chr(code))
 
 
 class RequestPathFuzzer(AbstractFuzzer):
