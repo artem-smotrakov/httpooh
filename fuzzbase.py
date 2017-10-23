@@ -134,12 +134,12 @@ class BoringFuzzer(AbstractFuzzer):
         self.index = 0
         self.values = []
 
-    def add(self, something):
-        if isinstance(something, list):
-            for value in something:
+    def add_values(self, values):
+        if isinstance(values, list):
+            for value in values:
                 self.values.append(value)
         else:
-            self.values.append(something)
+            raise Exception('You are supposed to give me a list!')
 
         return self
 
@@ -191,13 +191,12 @@ class RequestMethodFuzzer(BoringFuzzer):
         super().__init__()
         self.set_prefix('request_method')
         self.set_action(lambda request, fuzzed: request.set_method(fuzzed))
-        self.add([
+        self.add_values([
             '',
             'X' * 100000,
             'GET\x00'
         ])
-        for code in range(0, 256):
-            self.add(chr(code))
+        self.add_values([chr(code) for code in range(0, 256)])
 
 
 class RequestPathFuzzer(AbstractFuzzer):
