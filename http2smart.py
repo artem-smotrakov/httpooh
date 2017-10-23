@@ -15,7 +15,7 @@ class Http1UpgradeTest(AbstractTest):
         self.fuzzer = LinearFuzzer()
         self.fuzzer.add(RequestMethodFuzzer())
         self.fuzzer.add(RequestPathFuzzer())
-        # self.fuzzer.add(RequestVersionFuzzer())
+        self.fuzzer.add(RequestVersionFuzzer())
         # self.fuzzer.add(HostnameFuzzer())
 
     def run(self):

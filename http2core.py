@@ -684,6 +684,9 @@ HTTP2-Settings: {}
     def set_path(self, path):
         self.path = path
 
+    def set_version(self, version):
+        self.version = version
+
     def __repr__(self):
         return helper.truncate(self.get_http_request())
 

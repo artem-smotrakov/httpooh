@@ -217,8 +217,24 @@ class RequestPathFuzzer(BoringFuzzer):
         self.add_values([chr(code) for code in range(0, 256)])
 
 
-class RequestVersionFuzzer(AbstractFuzzer):
-    pass
+class RequestVersionFuzzer(BoringFuzzer):
+
+    def __init__(self):
+        super().__init__()
+        self.set_prefix('request_version')
+        self.set_action(lambda request, fuzzed: request.set_version(fuzzed))
+        self.add_values([
+            '',
+            'HTTP',
+            'HTTP/',
+            'HTTP/1',
+            'HTTP/1.'
+            'HTTP/1.1\x00',
+            'HTTP/100000.1',
+            'HTTP/1.100000',
+            'H{}P/1.1'.format('T' * 100000)
+        ])
+        self.add_values([chr(code) for code in range(0, 256)])
 
 
 class HostnameFuzzer(AbstractFuzzer):
