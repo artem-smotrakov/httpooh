@@ -131,8 +131,11 @@ class RequestMethodFuzzer(AbstractFuzzer):
         self.index = 0
         self.values = [
             '',
-            'X' * 100000
+            'X' * 100000,
+            'GET\x00'
         ]
+        for code in range(0, 256):
+            self.values.append(chr(code))
 
     def total(self):
         return len(self.values)

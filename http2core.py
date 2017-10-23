@@ -666,7 +666,7 @@ HTTP2-Settings: {}
         self.http2settings = SettingsFrame()
 
     def encode(self):
-        return self.get_http_request().encode('ascii')
+        return self.get_http_request().encode()
 
     def get_http_request(self):
         return self.template.format(self.method, self.path, self.version,
