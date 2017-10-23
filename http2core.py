@@ -687,6 +687,9 @@ HTTP2-Settings: {}
     def set_version(self, version):
         self.version = version
 
+    def set_host(self, host):
+        self.host = host
+
     def __repr__(self):
         return helper.truncate(self.get_http_request())
 

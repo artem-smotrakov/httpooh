@@ -237,6 +237,17 @@ class RequestVersionFuzzer(BoringFuzzer):
         self.add_values([chr(code) for code in range(0, 256)])
 
 
-class HostnameFuzzer(AbstractFuzzer):
-    pass
+class HostnameFuzzer(BoringFuzzer):
+
+    def __init__(self):
+        super().__init__()
+        self.set_prefix('request_host')
+        self.set_action(lambda request, fuzzed: request.set_host(fuzzed))
+        self.add_values([
+            '',
+            '{}.com'.format('x' * 1200),
+            '{}com'.format('x.' * 100),
+            'жопа.ком'
+        ])
+        self.add_values([chr(code) for code in range(0, 256)])
 
