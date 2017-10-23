@@ -199,8 +199,22 @@ class RequestMethodFuzzer(BoringFuzzer):
         self.add_values([chr(code) for code in range(0, 256)])
 
 
-class RequestPathFuzzer(AbstractFuzzer):
-    pass
+class RequestPathFuzzer(BoringFuzzer):
+
+    def __init__(self):
+        super().__init__()
+        self.set_prefix('request_path')
+        self.set_action(lambda request, fuzzed: request.set_path(fuzzed))
+        self.add_values([
+            '',
+            '/x' * 100000,
+            '/xxx\x00',
+            '/etc/passwd',
+            '{}etc/passwd'.format('../' * 20),
+            '.',
+            '..'
+        ])
+        self.add_values([chr(code) for code in range(0, 256)])
 
 
 class RequestVersionFuzzer(AbstractFuzzer):

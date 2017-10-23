@@ -681,6 +681,9 @@ HTTP2-Settings: {}
     def set_method(self, method):
         self.method = method
 
+    def set_path(self, path):
+        self.path = path
+
     def __repr__(self):
         return helper.truncate(self.get_http_request())
 
